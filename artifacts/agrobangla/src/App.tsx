@@ -1,0 +1,62 @@
+import { Switch, Route, Router as WouterRouter } from "wouter";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Layout } from "@/components/layout/layout";
+
+// Pages
+import Home from "@/pages/home";
+import AgroMap from "@/pages/agro-map";
+import DiseaseDetector from "@/pages/disease-detector";
+import QA from "@/pages/qa";
+import FertilizerGuide from "@/pages/fertilizer-guide";
+import Consultancy from "@/pages/consultancy";
+import CropRecommendation from "@/pages/crop-recommendation";
+import Marketplace from "@/pages/marketplace";
+import KrishokCard from "@/pages/krishok-card";
+import OrderTracking from "@/pages/orders";
+import AIAssistant from "@/pages/ai-assistant";
+import NotFound from "@/pages/not-found";
+
+const queryClient = new QueryClient();
+
+function Router() {
+  return (
+    <Layout>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/agro-map" component={AgroMap} />
+        <Route path="/disease-detector" component={DiseaseDetector} />
+        <Route path="/qa" component={QA} />
+        <Route path="/fertilizer-guide" component={FertilizerGuide} />
+        <Route path="/consultancy" component={Consultancy} />
+        <Route path="/crop-recommendation" component={CropRecommendation} />
+        <Route path="/marketplace" component={Marketplace} />
+        <Route path="/krishok-card" component={KrishokCard} />
+        <Route path="/orders" component={OrderTracking} />
+        <Route path="/ai-assistant" component={AIAssistant} />
+        <Route component={NotFound} />
+      </Switch>
+    </Layout>
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider defaultTheme="system" storageKey="agrobangla-theme">
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <Router />
+          </WouterRouter>
+          <Toaster />
+          <SonnerToaster position="top-center" />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
+}
+
+export default App;

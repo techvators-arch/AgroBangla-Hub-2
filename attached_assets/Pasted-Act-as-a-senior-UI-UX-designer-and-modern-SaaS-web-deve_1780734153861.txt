@@ -1,0 +1,58 @@
+Act as a senior UI/UX designer and modern SaaS web developer.
+
+Analyze my AgroBangla homepage and redesign it to look cleaner, more professional, and suitable for a national-level innovation competition.
+
+Requirements:
+
+1. Simplify the navigation bar:
+   - Reduce visual clutter.
+   - Keep only the most important menu items visible.
+   - Move secondary features into a "সেবা সমূহ" dropdown.
+   - Improve spacing, typography, and alignment.
+
+2. Improve the hero section:
+   - Add a modern gradient overlay on the background image.
+   - Increase text readability.
+   - Create a stronger visual hierarchy.
+   - Make the headline more impactful and premium-looking.
+   - Add subtle animations.
+
+3. Enhance CTA buttons:
+   - Make "রোগ নির্ণয় করুন" the primary button.
+   - Make "কৃষক নিবন্ধন" a secondary outlined button.
+   - Add hover effects and micro-interactions.
+
+4. Improve the statistics section:
+   - Convert the counters into modern glassmorphism or card-based components.
+   - Add icons.
+   - Increase spacing and visual balance.
+
+5. Use a modern design system:
+   - Professional green agricultural color palette.
+   - Consistent border radius.
+   - Modern shadows.
+   - Better typography.
+   - Premium visual appearance similar to government digital platforms and modern startup websites.
+
+6. Add modern effects:
+   - Smooth scroll animations.
+   - Fade-in content.
+   - Hover effects.
+   - Loading transitions.
+
+7. Ensure responsiveness:
+   - Perfect mobile, tablet, and desktop layouts.
+   - Mobile hamburger menu.
+   - Responsive typography.
+
+8. Follow modern UI trends:
+   - Glassmorphism.
+   - Soft shadows.
+   - Clean spacing.
+   - Minimalist layout.
+   - Professional dashboard-style design.
+
+Important:
+Do not change the AgroBangla branding, logo, Bengali language, or core functionality. Only improve the UI/UX, visual hierarchy, spacing, responsiveness, and professional appearance.
+
+Generate the complete improved React/Tailwind implementation and replace the existing homepage design with a more modern and premium version.

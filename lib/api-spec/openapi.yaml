@@ -1,0 +1,1034 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: AgroBangla API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: stats
+    description: Platform statistics
+  - name: disease
+    description: Plant disease detection
+  - name: qa
+    description: Farmer Q&A
+  - name: fertilizer
+    description: Fertilizer guides
+  - name: consultancy
+    description: Farmer consultancy
+  - name: crops
+    description: Crop recommendations
+  - name: marketplace
+    description: Agriculture marketplace
+  - name: krishok-card
+    description: Krishok card verification
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /stats:
+    get:
+      operationId: getPlatformStats
+      tags: [stats]
+      summary: Get platform statistics
+      responses:
+        "200":
+          description: Platform statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformStats"
+
+  /disease/detect:
+    post:
+      operationId: detectDisease
+      tags: [disease]
+      summary: Detect plant disease from image URL or description
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiseaseDetectInput"
+      responses:
+        "200":
+          description: Disease detection result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiseaseResult"
+
+  /disease/history:
+    get:
+      operationId: getDiseaseHistory
+      tags: [disease]
+      summary: Get recent disease detections
+      responses:
+        "200":
+          description: List of recent disease detections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DiseaseResult"
+
+  /qa:
+    get:
+      operationId: getQuestions
+      tags: [qa]
+      summary: Get all farmer questions
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of questions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Question"
+    post:
+      operationId: createQuestion
+      tags: [qa]
+      summary: Post a new question
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuestionInput"
+      responses:
+        "201":
+          description: Created question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Question"
+
+  /qa/{id}/answers:
+    post:
+      operationId: addAnswer
+      tags: [qa]
+      summary: Add an answer to a question
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnswerInput"
+      responses:
+        "201":
+          description: Added answer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Answer"
+
+  /fertilizer:
+    get:
+      operationId: getFertilizerGuides
+      tags: [fertilizer]
+      summary: Get fertilizer guides
+      parameters:
+        - name: crop
+          in: query
+          schema:
+            type: string
+        - name: season
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Fertilizer guides
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FertilizerGuide"
+
+  /consultancy:
+    get:
+      operationId: getConsultants
+      tags: [consultancy]
+      summary: Get available agricultural consultants
+      responses:
+        "200":
+          description: List of consultants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Consultant"
+    post:
+      operationId: bookConsultancy
+      tags: [consultancy]
+      summary: Book a consultancy session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsultancyBookingInput"
+      responses:
+        "201":
+          description: Booking created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsultancyBooking"
+
+  /consultancy/bookings:
+    get:
+      operationId: getMyBookings
+      tags: [consultancy]
+      summary: Get consultancy bookings
+      responses:
+        "200":
+          description: List of bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConsultancyBooking"
+
+  /crops/recommend:
+    post:
+      operationId: recommendCrops
+      tags: [crops]
+      summary: Get crop recommendations based on soil and climate data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CropRecommendInput"
+      responses:
+        "200":
+          description: Crop recommendations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CropRecommendation"
+
+  /crops:
+    get:
+      operationId: getCrops
+      tags: [crops]
+      summary: Get all supported crops
+      responses:
+        "200":
+          description: List of crops
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Crop"
+
+  /marketplace/products:
+    get:
+      operationId: getProducts
+      tags: [marketplace]
+      summary: Get marketplace products
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: district
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      operationId: createProduct
+      tags: [marketplace]
+      summary: List a new product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "201":
+          description: Created product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /marketplace/products/{id}:
+    get:
+      operationId: getProduct
+      tags: [marketplace]
+      summary: Get a product by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    delete:
+      operationId: deleteProduct
+      tags: [marketplace]
+      summary: Delete a product listing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /marketplace/stats:
+    get:
+      operationId: getMarketplaceStats
+      tags: [marketplace]
+      summary: Get marketplace summary statistics
+      responses:
+        "200":
+          description: Marketplace stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketplaceStats"
+
+  /krishok-card/verify:
+    post:
+      operationId: verifyKrishokCard
+      tags: [krishok-card]
+      summary: Verify a Krishok card
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KrishokCardVerifyInput"
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KrishokCard"
+
+  /krishok-card/register:
+    post:
+      operationId: registerKrishokCard
+      tags: [krishok-card]
+      summary: Register for a Krishok card
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KrishokCardInput"
+      responses:
+        "201":
+          description: Registration submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KrishokCard"
+
+  /agro-map/zones:
+    get:
+      operationId: getAgroZones
+      tags: [stats]
+      summary: Get agricultural zones for the map
+      responses:
+        "200":
+          description: List of agro zones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AgroZone"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    PlatformStats:
+      type: object
+      properties:
+        totalFarmers:
+          type: integer
+        totalProducts:
+          type: integer
+        totalConsultants:
+          type: integer
+        totalQuestions:
+          type: integer
+        totalDistricts:
+          type: integer
+        cropVarieties:
+          type: integer
+      required:
+        - totalFarmers
+        - totalProducts
+        - totalConsultants
+        - totalQuestions
+        - totalDistricts
+        - cropVarieties
+
+    DiseaseDetectInput:
+      type: object
+      properties:
+        cropType:
+          type: string
+        symptoms:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+      required:
+        - cropType
+        - symptoms
+
+    DiseaseResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        cropType:
+          type: string
+        symptoms:
+          type: string
+        diseaseName:
+          type: string
+        diseaseNameBn:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high]
+        treatment:
+          type: string
+        treatmentBn:
+          type: string
+        confidence:
+          type: number
+        detectedAt:
+          type: string
+      required:
+        - id
+        - cropType
+        - symptoms
+        - diseaseName
+        - diseaseNameBn
+        - severity
+        - treatment
+        - treatmentBn
+        - confidence
+        - detectedAt
+
+    Question:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        body:
+          type: string
+        category:
+          type: string
+        farmerName:
+          type: string
+        district:
+          type: string
+        answers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Answer"
+        answersCount:
+          type: integer
+        createdAt:
+          type: string
+        isResolved:
+          type: boolean
+      required:
+        - id
+        - title
+        - body
+        - category
+        - farmerName
+        - district
+        - answersCount
+        - createdAt
+        - isResolved
+
+    QuestionInput:
+      type: object
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+        category:
+          type: string
+        farmerName:
+          type: string
+        district:
+          type: string
+      required:
+        - title
+        - body
+        - category
+        - farmerName
+        - district
+
+    Answer:
+      type: object
+      properties:
+        id:
+          type: integer
+        questionId:
+          type: integer
+        body:
+          type: string
+        authorName:
+          type: string
+        isExpert:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - questionId
+        - body
+        - authorName
+        - isExpert
+        - createdAt
+
+    AnswerInput:
+      type: object
+      properties:
+        body:
+          type: string
+        authorName:
+          type: string
+        isExpert:
+          type: boolean
+      required:
+        - body
+        - authorName
+        - isExpert
+
+    FertilizerGuide:
+      type: object
+      properties:
+        id:
+          type: integer
+        cropName:
+          type: string
+        cropNameBn:
+          type: string
+        season:
+          type: string
+        soilType:
+          type: string
+        nitrogenKgPerAcre:
+          type: number
+        phosphorusKgPerAcre:
+          type: number
+        potassiumKgPerAcre:
+          type: number
+        applicationSchedule:
+          type: string
+        applicationScheduleBn:
+          type: string
+        notes:
+          type: string
+      required:
+        - id
+        - cropName
+        - cropNameBn
+        - season
+        - soilType
+        - nitrogenKgPerAcre
+        - phosphorusKgPerAcre
+        - potassiumKgPerAcre
+        - applicationSchedule
+        - applicationScheduleBn
+
+    Consultant:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameBn:
+          type: string
+        specialization:
+          type: string
+        specializationBn:
+          type: string
+        district:
+          type: string
+        experience:
+          type: integer
+        rating:
+          type: number
+        totalSessions:
+          type: integer
+        available:
+          type: boolean
+        fee:
+          type: number
+        imageUrl:
+          type: ["string", "null"]
+      required:
+        - id
+        - name
+        - nameBn
+        - specialization
+        - specializationBn
+        - district
+        - experience
+        - rating
+        - totalSessions
+        - available
+        - fee
+
+    ConsultancyBookingInput:
+      type: object
+      properties:
+        consultantId:
+          type: integer
+        farmerName:
+          type: string
+        phone:
+          type: string
+        topic:
+          type: string
+        preferredDate:
+          type: string
+        notes:
+          type: ["string", "null"]
+      required:
+        - consultantId
+        - farmerName
+        - phone
+        - topic
+        - preferredDate
+
+    ConsultancyBooking:
+      type: object
+      properties:
+        id:
+          type: integer
+        consultantId:
+          type: integer
+        consultantName:
+          type: string
+        farmerName:
+          type: string
+        phone:
+          type: string
+        topic:
+          type: string
+        preferredDate:
+          type: string
+        status:
+          type: string
+          enum: [pending, confirmed, completed, cancelled]
+        createdAt:
+          type: string
+      required:
+        - id
+        - consultantId
+        - consultantName
+        - farmerName
+        - phone
+        - topic
+        - preferredDate
+        - status
+        - createdAt
+
+    CropRecommendInput:
+      type: object
+      properties:
+        soilType:
+          type: string
+        district:
+          type: string
+        season:
+          type: string
+        rainfall:
+          type: string
+        temperature:
+          type: number
+        landSize:
+          type: number
+      required:
+        - soilType
+        - district
+        - season
+
+    CropRecommendation:
+      type: object
+      properties:
+        cropName:
+          type: string
+        cropNameBn:
+          type: string
+        suitabilityScore:
+          type: number
+        expectedYield:
+          type: string
+        expectedYieldBn:
+          type: string
+        growingPeriod:
+          type: string
+        estimatedProfit:
+          type: number
+        reasons:
+          type: array
+          items:
+            type: string
+      required:
+        - cropName
+        - cropNameBn
+        - suitabilityScore
+        - expectedYield
+        - expectedYieldBn
+        - growingPeriod
+        - estimatedProfit
+        - reasons
+
+    Crop:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameBn:
+          type: string
+        category:
+          type: string
+        season:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+      required:
+        - id
+        - name
+        - nameBn
+        - category
+        - season
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameBn:
+          type: string
+        category:
+          type: string
+        price:
+          type: number
+        unit:
+          type: string
+        quantity:
+          type: number
+        district:
+          type: string
+        sellerName:
+          type: string
+        sellerPhone:
+          type: string
+        description:
+          type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        isOrganic:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - nameBn
+        - category
+        - price
+        - unit
+        - quantity
+        - district
+        - sellerName
+        - sellerPhone
+        - isOrganic
+        - createdAt
+
+    ProductInput:
+      type: object
+      properties:
+        name:
+          type: string
+        nameBn:
+          type: string
+        category:
+          type: string
+        price:
+          type: number
+        unit:
+          type: string
+        quantity:
+          type: number
+        district:
+          type: string
+        sellerName:
+          type: string
+        sellerPhone:
+          type: string
+        description:
+          type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        isOrganic:
+          type: boolean
+      required:
+        - name
+        - nameBn
+        - category
+        - price
+        - unit
+        - quantity
+        - district
+        - sellerName
+        - sellerPhone
+        - isOrganic
+
+    MarketplaceStats:
+      type: object
+      properties:
+        totalProducts:
+          type: integer
+        totalSellers:
+          type: integer
+        totalDistricts:
+          type: integer
+        avgPrice:
+          type: number
+        topCategories:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+              count:
+                type: integer
+            required:
+              - category
+              - count
+      required:
+        - totalProducts
+        - totalSellers
+        - totalDistricts
+        - avgPrice
+        - topCategories
+
+    KrishokCardVerifyInput:
+      type: object
+      properties:
+        cardNumber:
+          type: string
+        nidNumber:
+          type: ["string", "null"]
+      required:
+        - cardNumber
+
+    KrishokCardInput:
+      type: object
+      properties:
+        farmerName:
+          type: string
+        farmerNameBn:
+          type: string
+        fatherName:
+          type: string
+        nidNumber:
+          type: string
+        district:
+          type: string
+        upazila:
+          type: string
+        village:
+          type: string
+        phone:
+          type: string
+        landSize:
+          type: number
+        cropTypes:
+          type: array
+          items:
+            type: string
+      required:
+        - farmerName
+        - farmerNameBn
+        - fatherName
+        - nidNumber
+        - district
+        - upazila
+        - village
+        - phone
+        - landSize
+        - cropTypes
+
+    KrishokCard:
+      type: object
+      properties:
+        id:
+          type: integer
+        cardNumber:
+          type: string
+        farmerName:
+          type: string
+        farmerNameBn:
+          type: string
+        fatherName:
+          type: string
+        nidNumber:
+          type: string
+        district:
+          type: string
+        upazila:
+          type: string
+        village:
+          type: string
+        phone:
+          type: string
+        landSize:
+          type: number
+        cropTypes:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [pending, verified, rejected]
+        issuedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - cardNumber
+        - farmerName
+        - farmerNameBn
+        - fatherName
+        - nidNumber
+        - district
+        - upazila
+        - village
+        - phone
+        - landSize
+        - cropTypes
+        - status
+        - createdAt
+
+    AgroZone:
+      type: object
+      properties:
+        id:
+          type: integer
+        district:
+          type: string
+        districtBn:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        primaryCrop:
+          type: string
+        primaryCropBn:
+          type: string
+        soilType:
+          type: string
+        farmerCount:
+          type: integer
+        productionTons:
+          type: number
+      required:
+        - id
+        - district
+        - districtBn
+        - lat
+        - lng
+        - primaryCrop
+        - primaryCropBn
+        - soilType
+        - farmerCount
+        - productionTons

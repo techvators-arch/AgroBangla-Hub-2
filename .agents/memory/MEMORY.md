@@ -1,0 +1,2 @@
+- [AgroBangla architecture](agrobangla-arch.md) — contract-first React+Express app; API server must be restarted (not hot-reload) after adding routes
+- [Leaflet in Vite](leaflet-vite.md) — requires dynamic import pattern to avoid Vite pre-bundle errors; peer dep warnings with React 19 are harmless
