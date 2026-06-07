@@ -14,10 +14,10 @@ router.get("/weather/current", async (_req, res) => {
   const rows = await db.select().from(weatherDataTable).orderBy(desc(weatherDataTable.createdAt)).limit(1);
   if (!rows.length) {
     return res.json({
-      location: "সাদেরাবাদ",
+      location: "ময়মনসিংহ",
       temperature: 32.5, humidity: 78, windSpeed: 12, rainfall: 2.5,
       sunlight: 850, pressure: 1012, uvIndex: 6.8,
-      floodRisk: "সাবাবিক", alertLevel: "সাবাবিক",
+      floodRisk: "স্বাভাবিক", alertLevel: "স্বাভাবিক",
       updatedAt: new Date().toISOString(),
     });
   }
@@ -26,8 +26,8 @@ router.get("/weather/current", async (_req, res) => {
 
 router.get("/weather/forecast", async (_req, res) => {
   const now = new Date();
-  const labels = ["আজ", "কাল", "পরশু", "পরশু", "পরশু"];
-  const months = ["জুন", "জুলাই", "আগস্ট"];
+  const labels = ["আজ", "কাল", "পরশু", "তরশু", "চার দিন পর"];
+  const months = ["জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন","জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"];
   const forecast = Array.from({ length: 5 }, (_, i) => {
     const day = new Date(now); day.setDate(day.getDate() + i);
     const temp = 28 + Math.random() * 8;
@@ -35,14 +35,14 @@ router.get("/weather/forecast", async (_req, res) => {
     const rain = Math.random() * 15;
     const wind = 5 + Math.random() * 20;
     const sun = 400 + Math.random() * 800;
-    const floodRisk = rain > 10 ? "সরাসরি" : rain > 5 ? "মামুলি" : "সাবাবিক";
-    const alert = rain > 12 ? "সরাসরি" : rain > 7 ? "সরতকর" : "সাবাবিক";
+    const floodRisk = rain > 10 ? "বিপদজনক" : rain > 5 ? "মাঝারি" : "স্বাভাবিক";
+    const alert = rain > 12 ? "বিপদজনক" : rain > 7 ? "সতর্ক" : "স্বাভাবিক";
     return {
-      date: `${day.getDate()} ${months[day.getMonth() % 3]}`, label: labels[i],
+      date: `${day.getDate()} ${months[day.getMonth()]}`, label: labels[i],
       temperature: parseFloat(temp.toFixed(1)), humidity: parseFloat(hum.toFixed(1)),
       rainfall: parseFloat(rain.toFixed(1)), windSpeed: parseFloat(wind.toFixed(1)),
       sunlight: parseFloat(sun.toFixed(0)), floodRisk, alertLevel: alert,
-      condition: rain > 5 ? "বর্ষা" : hum > 80 ? "মেঘ মেঘ" : "রোদ্ধ",
+      condition: rain > 5 ? "বৃষ্টি" : hum > 80 ? "মেঘলা" : "রোদেলা",
     };
   });
   res.json(forecast);
@@ -50,10 +50,10 @@ router.get("/weather/forecast", async (_req, res) => {
 
 router.post("/weather/ingest", async (req, res) => {
   const { location, temperature, humidity, windSpeed, rainfall, sunlight, pressure, uvIndex, lat, lon } = req.body;
-  const floodRisk = rainfall > 50 ? "সরাসরি" : rainfall > 25 ? "মামুলি" : "সাবাবিক";
-  const alertLevel = rainfall > 50 ? "সরাসরি" : temperature > 40 ? "সরতকর" : "সাবাবিক";
+  const floodRisk = rainfall > 50 ? "বিপদজনক" : rainfall > 25 ? "মাঝারি" : "স্বাভাবিক";
+  const alertLevel = rainfall > 50 ? "বিপদজনক" : temperature > 40 ? "সতর্ক" : "স্বাভাবিক";
   const [row] = await db.insert(weatherDataTable).values({
-    location: location || "সাদেরাবাদ",
+    location: location || "ময়মনসিংহ",
     temperature, humidity, windSpeed, rainfall, sunlight, pressure, uvIndex,
     lat, lon, floodRisk, alertLevel,
   }).returning();
@@ -86,7 +86,7 @@ router.post("/sensor/ingest", async (req, res) => {
   const { deviceId, sensorType, value, unit, location, lat, lon } = req.body;
   const [row] = await db.insert(sensorReadingsTable).values({
     deviceId: deviceId || "rover-001", sensorType, value, unit,
-    location: location || "সাদেরাবাদ", lat, lon,
+    location: location || "ময়মনসিংহ", lat, lon,
   }).returning();
   const thresholdMap: Record<string, { max: number; min: number; unit: string }> = {
     soil_moisture: { min: 30, max: 80, unit: "%" },
@@ -100,11 +100,11 @@ router.post("/sensor/ingest", async (req, res) => {
   };
   const t = thresholdMap[sensorType];
   if (t && (value < t.min || value > t.max)) {
-    const severity = value > t.max * 1.5 || value < t.min * 0.5 ? "সরাসরি" : "সরতকর";
+    const severity = value > t.max * 1.5 || value < t.min * 0.5 ? "বিপদজনক" : "সতর্ক";
     const title = value > t.max ? `${sensorType} মান বেশি` : `${sensorType} মান কম`;
     await db.insert(sensorAlertsTable).values({
       sensorType, severity, title,
-      description: `${sensorType} সেনসরের রিডিং ${value} ${t.unit} হয়েসে। সামান্য সীমা ${t.min} - ${t.max} ${t.unit}।`,
+      description: `${sensorType} সেন্সরের রিডিং ${value} ${t.unit} হয়েছে। স্বাভাবিক সীমা ${t.min} - ${t.max} ${t.unit}।`,
       value, threshold: value > t.max ? t.max : t.min, unit: t.unit,
     });
   }
@@ -126,6 +126,12 @@ router.patch("/sensor/alerts/:id/read", async (req, res) => {
 });
 
 // ── 3. ANIMAL HEALTH ──
+// NOTE: /alerts must come BEFORE /:animalId to avoid Express matching "alerts" as an ID
+router.get("/animal-health/alerts", async (_req, res) => {
+  const rows = await db.select().from(animalHealthTable).where(eq(animalHealthTable.status, "বিপদজনক")).orderBy(desc(animalHealthTable.updatedAt));
+  res.json(rows.map(r => ({ ...r, updatedAt: r.updatedAt.toISOString() })));
+});
+
 router.get("/animal-health", async (req, res) => {
   const { species, status } = req.query as { species?: string; status?: string };
   let rows = await db.select().from(animalHealthTable).orderBy(desc(animalHealthTable.updatedAt));
@@ -141,11 +147,6 @@ router.get("/animal-health/:animalId", async (req, res) => {
   res.json({ ...rows[0], updatedAt: rows[0].updatedAt.toISOString() });
 });
 
-router.get("/animal-health/alerts", async (_req, res) => {
-  const rows = await db.select().from(animalHealthTable).where(eq(animalHealthTable.status, "সরাসরি")).orderBy(desc(animalHealthTable.updatedAt));
-  res.json(rows.map(r => ({ ...r, updatedAt: r.updatedAt.toISOString() })));
-});
-
 router.post("/animal-health/ingest", async (req, res) => {
   const data = req.body;
   let status = "সুস্থ";
@@ -155,9 +156,9 @@ router.post("/animal-health/ingest", async (req, res) => {
   if (heartRate > 90 || heartRate < 40) healthScore -= 20;
   if (respiratoryRate > 30 || respiratoryRate < 10) healthScore -= 20;
   if (activity < 30) healthScore -= 15;
-  if (healthScore < 50) status = "সরাসরি";
-  else if (healthScore < 70) status = "সরতকর";
-  else if (healthScore < 85) status = "রোগাক্রানত";
+  if (healthScore < 50) status = "বিপদজনক";
+  else if (healthScore < 70) status = "সতর্ক";
+  else if (healthScore < 85) status = "রোগাক্রান্ত";
   const [row] = await db.insert(animalHealthTable).values({ ...data, healthScore, status }).returning();
   res.status(201).json({ ...row, updatedAt: row.updatedAt.toISOString() });
 });
@@ -165,9 +166,9 @@ router.post("/animal-health/ingest", async (req, res) => {
 // ── 4. LIVE CHAT ──
 router.get("/live-chat/rooms", async (_req, res) => {
   res.json([
-    { id: "সাদার্ন", name: "সাদার্ন", type: "তাত্ক্ষণিক" },
-    { id: "সরাসরি", name: "সরাসরি", type: "সরাসরি" },
-    { id: "সাহায্যতা", name: "সাহায্যতা", type: "সাহায্যতা" },
+    { id: "সাধারণ", name: "সাধারণ কক্ষ", type: "সাধারণ" },
+    { id: "জরুরি", name: "জরুরি সহায়তা", type: "জরুরি" },
+    { id: "বিশেষজ্ঞ", name: "বিশেষজ্ঞ পরামর্শ", type: "বিশেষজ্ঞ" },
   ]);
 });
 
@@ -182,7 +183,7 @@ router.get("/live-chat/history", async (req, res) => {
 router.post("/live-chat/message", async (req, res) => {
   const { roomId, senderId, senderName, senderRole, message, isAi } = req.body;
   const [row] = await db.insert(chatMessagesTable).values({
-    roomId: roomId || "সাদার্ন", senderId, senderName, senderRole: senderRole || "কৃষক", message, isAi: isAi || false,
+    roomId: roomId || "সাধারণ", senderId, senderName, senderRole: senderRole || "কৃষক", message, isAi: isAi || false,
   }).returning();
   res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
 });
@@ -191,15 +192,15 @@ router.post("/live-chat/ai-reply", async (req, res) => {
   const { message } = req.body;
   const lower = message.toLowerCase();
   let reply = "দুঃখিত! আপনার প্রশ্নের সমাধান দেওয়ার চেষ্টা করছি।";
-  if (lower.includes("সার") || lower.includes("fertilizer") || lower.includes("রসিদ")) {
+  if (lower.includes("সার") || lower.includes("fertilizer")) {
     reply = "সার ব্যবহারের জন্য মাটির পরীক্ষা করুন। ধানের ক্ষেতে N-P-K অনুপাত ৭:৩:৩০ সরবরাহ করুন। রাসায়নিক সারের পরিমাণ মাটির অবস্থা অনুযায়ী নির্ধারণ করুন।";
   } else if (lower.includes("রোগ") || lower.includes("disease") || lower.includes("সমস্যা")) {
-    reply = "রোগ নির্ণয়ের প্রথম পদক্ষেপ হলো পাতা/ঘাসের নমুনা সংগ্রহ করা। কীটনাশক ব্যবহারের আগে স্থানীয় কৃষি অফিসের পরামর্শ নিন।";
+    reply = "রোগ নির্ণয়ের প্রথম পদক্ষেপ হলো পাতা ও ঘাসের নমুনা সংগ্রহ করা। কীটনাশক ব্যবহারের আগে স্থানীয় কৃষি অফিসের পরামর্শ নিন।";
   } else if (lower.includes("বৃষ্টি") || lower.includes("rain") || lower.includes("আবহাওয়া") || lower.includes("weather")) {
     reply = "আজকের আবহাওয়া পর্যবেক্ষণ করুন। বৃষ্টির সম্ভাবনা থাকলে ফসলের নিষ্কাশন ব্যবস্থা পরীক্ষা করুন।";
   } else if (lower.includes("পানি") || lower.includes("water") || lower.includes("সেচ")) {
     reply = "সেচের সময় ভোর বা সন্ধ্যা বেছে নিন। পানির pH ৬.৫-৭.৫ রাখার চেষ্টা করুন।";
-  } else if (lower.includes("মাটি") || lower.includes("soil") || lower.includes("pH") || lower.includes("salinity")) {
+  } else if (lower.includes("মাটি") || lower.includes("soil") || lower.includes("ph") || lower.includes("salinity")) {
     reply = "মাটির pH ৬.০-৭.৫ এবং লবণাক্ততা ৪ dS/m-এর নিচে রাখুন। মাটির পরীক্ষা করুন এবং জৈব সার প্রয়োগ করুন।";
   }
   res.json({ reply, confidence: 0.92, source: "agri-ai" });
@@ -220,14 +221,14 @@ router.get("/precision-ag/:fieldId", async (req, res) => {
 router.post("/precision-ag/ingest", async (req, res) => {
   const { fieldId, cropType, fieldSize, soilType, nitrogen, phosphorus, potassium, organicMatter, lat, lon, location } = req.body;
   let recommendation = "", nextAction = "";
-  if (nitrogen < 80) { recommendation += "নাষাবেশি সার শরৌরাহ করুন। "; nextAction += "যুরিয়া সার প্রযোগ করুন। "; }
-  if (phosphorus < 25) { recommendation += "ফসসরের বৃদ্ধি র জন্য বাসেসিছ সার প্রযোগ করুন। "; nextAction += "বাসেসিছ সার দিন। "; }
-  if (potassium < 150) { recommendation += "ফলনের বরূল র জন্য মিসেসিয়াম সার প্রযোগ করুন। "; nextAction += "মিসেসিয়াম সার দিন। "; }
-  if (organicMatter < 2) { recommendation += "মারির রসান শক্তি কম । জৈব সার প্রযোগ করুন। "; nextAction += "জৈব সার প্রযোগ করুন। "; }
-  if (!recommendation) { recommendation = "মারির নিরাপেখা সাবাবিক ৠ। বর্তমান পরিদর্শনরসার প্রযোগ করুন।"; nextAction = "নির্ধিত পরিদর্শনরসার প্রযোগ করুন।"; }
+  if (nitrogen < 80) { recommendation += "নাইট্রোজেন সার সরবরাহ করুন। "; nextAction += "ইউরিয়া সার প্রয়োগ করুন। "; }
+  if (phosphorus < 25) { recommendation += "ফসফরাস বৃদ্ধির জন্য টিএসপি সার প্রয়োগ করুন। "; nextAction += "টিএসপি সার দিন। "; }
+  if (potassium < 150) { recommendation += "ফলন বৃদ্ধির জন্য পটাশ সার প্রয়োগ করুন। "; nextAction += "মিউরেট অব পটাশ দিন। "; }
+  if (organicMatter < 2) { recommendation += "মাটির জৈব পদার্থ কম। জৈব সার প্রয়োগ করুন। "; nextAction += "কম্পোস্ট সার প্রয়োগ করুন। "; }
+  if (!recommendation) { recommendation = "মাটির পুষ্টিমান স্বাভাবিক। বর্তমান পরিমাণে সার প্রয়োগ করুন।"; nextAction = "নির্ধারিত সময়সূচি অনুযায়ী সার প্রয়োগ করুন।"; }
   const [row] = await db.insert(precisionAgTable).values({
     fieldId, cropType, fieldSize, soilType, nitrogen, phosphorus, potassium, organicMatter,
-    recommendation, nextAction, location: location || "সাদেরাবাদ", lat, lon,
+    recommendation, nextAction, location: location || "ময়মনসিংহ", lat, lon,
   }).returning();
   res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
 });
@@ -246,7 +247,7 @@ router.get("/drones/:droneId", async (req, res) => {
 
 router.post("/drones/ingest", async (req, res) => {
   const { droneId, battery, altitude, speed, coverageArea, lat, lon, imageUrl, lastMission, nextMission } = req.body;
-  const status = battery < 10 ? "রিসেশ্ন" : battery < 30 ? "হারিয়ে দশ" : "হারিয়ে মশন";
+  const status = battery < 10 ? "চার্জিং" : battery < 30 ? "অপেক্ষায়" : "মিশনে আছে";
   const [row] = await db.insert(droneTable).values({
     droneId, battery, altitude, speed, coverageArea, lat, lon, imageUrl, lastMission, nextMission, status,
   }).returning();
@@ -301,7 +302,7 @@ router.post("/irrigation/schedule", async (req, res) => {
   const { fieldId, cropType, scheduleType, startTime, duration, waterAmount, soilMoistureThreshold, nextRun, location, lat, lon } = req.body;
   const [row] = await db.insert(irrigationTable).values({
     fieldId, cropType, scheduleType, startTime, duration, waterAmount, soilMoistureThreshold, nextRun,
-    isActive: true, status: "সন্ধি", location: location || "সাদেরাবাদ", lat, lon,
+    isActive: true, status: "সক্রিয়", location: location || "ময়মনসিংহ", lat, lon,
   }).returning();
   res.status(201).json({ ...row, createdAt: row.createdAt.toISOString() });
 });
@@ -311,7 +312,7 @@ router.patch("/irrigation/:id/toggle", async (req, res) => {
   const rows = await db.select().from(irrigationTable).where(eq(irrigationTable.id, id));
   if (!rows.length) return res.status(404).json({ error: "Not found" });
   const newActive = !rows[0].isActive;
-  const newStatus = newActive ? "সন্ধি" : "বান্দ";
+  const newStatus = newActive ? "সক্রিয়" : "বন্ধ";
   await db.update(irrigationTable).set({ isActive: newActive, status: newStatus }).where(eq(irrigationTable.id, id));
   res.json({ id, isActive: newActive, status: newStatus });
 });
