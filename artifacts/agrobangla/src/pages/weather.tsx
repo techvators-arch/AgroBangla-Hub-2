@@ -45,7 +45,7 @@ export default function WeatherPage() {
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold mb-1">আবহাওয়া পর্যবেক্ষণ</h1>
-          <p className="text-muted-foreground">সাদেরাবাদ এলাকার তাত্ক্ষণিক আবহাওয়া ডেটা</p>
+          <p className="text-muted-foreground">স্থানীয় এলাকার তাৎক্ষণিক আবহাওয়া ডেটা</p>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="cursor-pointer" onClick={() => setUnit("c")}>
@@ -84,16 +84,16 @@ export default function WeatherPage() {
                           <MapPin className="w-3 h-3" /> {current.location}
                         </p>
                         <p className="text-4xl font-bold">{temp(current.temperature)}</p>
-                        <p className="text-sm text-muted-foreground">আদরের তাপমাত্রা সাদেরাবাদ</p>
+                        <p className="text-sm text-muted-foreground">বর্তমান তাপমাত্রা</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {current.alertLevel !== "সাবাবিক" && (
+                      {current.alertLevel !== "স্বাভাবিক" && (
                         <Badge className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 gap-1">
                           <AlertTriangle className="w-3 h-3" /> {current.alertLevel}
                         </Badge>
                       )}
-                      {current.floodRisk !== "সাবাবিক" && (
+                      {current.floodRisk !== "স্বাভাবিক" && (
                         <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 gap-1">
                           <Waves className="w-3 h-3" /> {current.floodRisk}
                         </Badge>
@@ -118,7 +118,7 @@ export default function WeatherPage() {
                 <MetricCard icon={<Eye className="w-5 h-5 text-violet-500" />}
                   label="UV ইনডেক্স" value={`${current.uvIndex}`} />
                 <MetricCard icon={<Waves className="w-5 h-5 text-cyan-500" />}
-                  label="বন্যা যুক্তি" value={current.floodRisk} />
+                  label="বন্যা ঝুঁকি" value={current.floodRisk} />
                 <MetricCard icon={<AlertTriangle className="w-5 h-5 text-orange-500" />}
                   label="সতর্কতা স্তর" value={current.alertLevel} />
               </div>
@@ -158,10 +158,10 @@ export default function WeatherPage() {
                         <span className="flex items-center gap-1"><Sun className="w-3.5 h-3.5 text-amber-500" /> {day.sunlight} lux</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        {day.floodRisk !== "সাবাবিক" && (
+                        {day.floodRisk !== "স্বাভাবিক" && (
                           <Badge variant="outline" className="text-amber-600 border-amber-300">{day.floodRisk}</Badge>
                         )}
-                        {day.alertLevel !== "সাবাবিক" && (
+                        {day.alertLevel !== "স্বাভাবিক" && (
                           <Badge variant="outline" className="text-red-600 border-red-300">{day.alertLevel}</Badge>
                         )}
                       </div>
@@ -179,33 +179,33 @@ export default function WeatherPage() {
           <Card className="p-6">
             <CardHeader className="px-0 pt-0">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Waves className="w-5 h-5 text-cyan-600" /> বন্যা যুক্তি সতর্কতা
+                <Waves className="w-5 h-5 text-cyan-600" /> বন্যা ঝুঁকি সতর্কতা
               </CardTitle>
             </CardHeader>
             <CardContent className="px-0 pb-0">
               <p className="text-muted-foreground text-sm mb-4">
-                বর্ষার পরিমাণ, নদীর স্তর এবং তাপমাত্রা বিশ্লেষণ করে বন্যা যুক্তি নির্ণয় করা হয়।
+                বর্ষার পরিমাণ, নদীর স্তর এবং তাপমাত্রা বিশ্লেষণ করে বন্যা ঝুঁকি নির্ণয় করা হয়।
               </p>
               <div className="space-y-3">
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200">
                   <div className="w-3 h-3 rounded-full bg-green-500" />
                   <div>
-                    <p className="font-medium text-sm">সাবাবিক</p>
-                    <p className="text-xs text-muted-foreground">বর্ষাপাত ৠ১ মিমি এর কম থাকলে সাবাবিক</p>
+                    <p className="font-medium text-sm">স্বাভাবিক</p>
+                    <p className="text-xs text-muted-foreground">বৃষ্টিপাত ২৫ মিমি এর কম থাকলে স্বাভাবিক</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200">
                   <div className="w-3 h-3 rounded-full bg-amber-500" />
                   <div>
-                    <p className="font-medium text-sm">মামুলি</p>
-                    <p className="text-xs text-muted-foreground">বর্ষাপাত ২৫-৮০ মিমি হলে মামুলি যুক্তি</p>
+                    <p className="font-medium text-sm">মাঝারি</p>
+                    <p className="text-xs text-muted-foreground">বৃষ্টিপাত ২৫-৮০ মিমি হলে মাঝারি যুক্তি</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200">
                   <div className="w-3 h-3 rounded-full bg-red-500" />
                   <div>
-                    <p className="font-medium text-sm">সরাসরি</p>
-                    <p className="text-xs text-muted-foreground">বর্ষাপাত ৮০ মিমি এর বেশি হলে সরাসরি যুক্তি</p>
+                    <p className="font-medium text-sm">উচ্চ ঝুঁকি</p>
+                    <p className="text-xs text-muted-foreground">বৃষ্টিপাত ৮০ মিমি এর বেশি হলে উচ্চ ঝুঁকি</p>
                   </div>
                 </div>
               </div>

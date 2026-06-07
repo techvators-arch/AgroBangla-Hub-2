@@ -112,7 +112,7 @@ export default function LiveChat() {
   const [suggestions, setSuggestions] = useState<string[]>([
     "ধানের রোগ কী করব?",
     "সারের সঠিক ব্যবহার জানতে চাই?",
-    "বর্ষার সময় দরান?",
+    "বর্ষার সময় কী করব?",
     "মাটির pH মান কম হলে কী করব?",
   ]);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -199,7 +199,7 @@ export default function LiveChat() {
             <h1 className="text-xl font-bold leading-tight">Agri AI লাইভ চ্যাট</h1>
             <p className="text-xs text-muted-foreground flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
-              বাংলাদেশ কৃষি বিশেষজ্শ AI সহকারী
+              বাংলাদেশ কৃষি বিশেষজ্ঞ AI সহকারী
             </p>
           </div>
         </div>
@@ -240,7 +240,7 @@ export default function LiveChat() {
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                 <h2 className="text-2xl font-bold mb-2">আমি কীভাবে সাহায্য করতে পারি?</h2>
                 <p className="text-muted-foreground text-sm max-w-md">
-                  ধান, গম, সবুজি, সার, রোগ নির্ণয়, সরকারি সুবিধা — যেকোনো কৃষি বিষয়ে বাংলায় প্রশ্ন করুন।
+                  ধান, গম, সবজি, সার, রোগ নির্ণয়, সরকারি সুবিধা — যেকোনো কৃষি বিষয়ে বাংলায় প্রশ্ন করুন।
                 </p>
               </motion.div>
               {suggestions.length > 0 && (

@@ -18,9 +18,9 @@ function fetchIrrigation() {
 }
 
 const statusMeta: Record<string, { color: string; bg: string; icon: React.ReactNode }> = {
-  "সন্ধি": { color: "text-emerald-700", bg: "bg-emerald-100", icon: <Droplets className="w-3.5 h-3.5" /> },
-  "চলুমান": { color: "text-blue-700", bg: "bg-blue-100", icon: <Droplets className="w-3.5 h-3.5" /> },
-  "বন্দ": { color: "text-slate-700", bg: "bg-slate-100", icon: <Settings className="w-3.5 h-3.5" /> },
+  "সক্রিয়": { color: "text-emerald-700", bg: "bg-emerald-100", icon: <Droplets className="w-3.5 h-3.5" /> },
+  "চলমান": { color: "text-blue-700", bg: "bg-blue-100", icon: <Droplets className="w-3.5 h-3.5" /> },
+  "বন্ধ": { color: "text-slate-700", bg: "bg-slate-100", icon: <Settings className="w-3.5 h-3.5" /> },
 };
 
 export default function SmartIrrigation() {
@@ -35,7 +35,7 @@ export default function SmartIrrigation() {
   };
 
   const activeCount = schedules?.filter((s: any) => s.isActive).length || 0;
-  const runningCount = schedules?.filter((s: any) => s.status === "চলুমান").length || 0;
+  const runningCount = schedules?.filter((s: any) => s.status === "চলমান").length || 0;
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
@@ -43,15 +43,15 @@ export default function SmartIrrigation() {
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold mb-1">স্মার্ট সেচ</h1>
-          <p className="text-muted-foreground">সেনসর-ভিত্তিক সাদেরাবাদ সেচ সরেসরদ নির্সসাদর</p>
+          <p className="text-muted-foreground">সেন্সর-ভিত্তিক স্বয়ংক্রিয় সেচ ব্যবস্থাপনা</p>
         </div>
         <div className="flex items-center gap-2">
           <Badge className="bg-emerald-100 text-emerald-700 gap-1">
-            <Droplets className="w-3 h-3" /> {activeCount} সন্ধি
+            <Droplets className="w-3 h-3" /> {activeCount} সক্রিয়
           </Badge>
           {runningCount > 0 && (
             <Badge className="bg-blue-100 text-blue-700 gap-1">
-              <Droplets className="w-3 h-3" /> {runningCount} চলুমান
+              <Droplets className="w-3 h-3" /> {runningCount} চলমান
             </Badge>
           )}
         </div>
@@ -64,7 +64,7 @@ export default function SmartIrrigation() {
       ) : schedules?.length ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {schedules.map((s: any) => {
-            const st = statusMeta[s.status] || statusMeta["সন্ধি"];
+            const st = statusMeta[s.status] || statusMeta["সক্রিয়"];
             return (
               <motion.div key={s.id} whileHover={{ scale: 1.01 }}>
                 <Card className={`hover:border-primary/30 transition-colors ${!s.isActive ? "opacity-70" : ""}`}>
@@ -108,7 +108,7 @@ export default function SmartIrrigation() {
                       </div>
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-muted-foreground flex items-center gap-1">
-                          <Sprout className="w-3 h-3" /> মারিত শিতষ্ণতা সীমা
+                          <Sprout className="w-3 h-3" /> মাটির আর্দ্রতা সীমা
                         </span>
                         <span className="font-medium">{s.soilMoistureThreshold ? `${s.soilMoistureThreshold}%` : "—"}</span>
                       </div>
@@ -134,15 +134,15 @@ export default function SmartIrrigation() {
                     >
                       {toggling === s.id ? (
                         <>
-                          <Timer className="w-3 h-3 animate-spin" /> থার্দ হলে...
+                          <Timer className="w-3 h-3 animate-spin" /> অপেক্ষা করুন...
                         </>
                       ) : s.isActive ? (
                         <>
-                          <ToggleRight className="w-3 h-3" /> সন্ধি সর্সরসর সত্র হলে
+                          <ToggleRight className="w-3 h-3" /> নিষ্ক্রিয় করুন
                         </>
                       ) : (
                         <>
-                          <ToggleLeft className="w-3 h-3" /> সন্ধি সর্সরসর সত্র হলে
+                          <ToggleLeft className="w-3 h-3" /> সক্রিয় করুন
                         </>
                       )}
                     </Button>
@@ -159,7 +159,7 @@ export default function SmartIrrigation() {
       ) : (
         <Card className="p-12 text-center">
           <Droplets className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-          <p className="text-muted-foreground">কোনো সেচ সরেসরসর ডেটা পাওয়া যায়নি</p>
+          <p className="text-muted-foreground">কোনো সেচ সময়সূচি পাওয়া যায়নি</p>
         </Card>
       )}
     </motion.div>

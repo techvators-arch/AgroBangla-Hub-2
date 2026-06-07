@@ -58,7 +58,7 @@ export default function MarketIntelligence() {
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold mb-1">বাজার পর্যবেক্ষণ</h1>
-          <p className="text-muted-foreground">তাত্ক্ষণিক বাজার দর এবং তরতর নির্রবাছ দদন</p>
+          <p className="text-muted-foreground">তাৎক্ষণিক বাজার দর ও মূল্য বিশ্লেষণ</p>
         </div>
       </div>
 
@@ -95,7 +95,7 @@ export default function MarketIntelligence() {
           <CardContent className="p-3">
             <div className="flex items-center gap-2 mb-1">
               <BarChart3 className="w-4 h-4 text-blue-600" />
-              <span className="text-xs text-muted-foreground">সরে সদন</span>
+              <span className="text-xs text-muted-foreground">মোট</span>
             </div>
             <p className="text-xl font-bold text-blue-700">{stats.total}</p>
           </CardContent>
@@ -143,18 +143,18 @@ export default function MarketIntelligence() {
                     </div>
                     <div className="flex items-center gap-4 flex-wrap">
                       <div className="text-right">
-                        <p className="text-xs text-muted-foreground">নিতি বিক্রি</p>
+                        <p className="text-xs text-muted-foreground">পাইকারি বিক্রি</p>
                         <p className="font-semibold text-sm">৳{p.wholesalePrice?.toFixed(0)}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs text-muted-foreground">খুছ্রা বিক্রি</p>
+                        <p className="text-xs text-muted-foreground">খুচরা বিক্রি</p>
                         <p className="font-semibold text-sm">৳{p.retailPrice?.toFixed(0)}</p>
                       </div>
                       <Badge className={`${tr.bg} ${tr.color} text-xs gap-1`}>
                         {tr.icon} {tr.label}
                       </Badge>
                       <div className="text-right min-w-[80px]">
-                        <p className="text-xs text-muted-foreground">সরেবরাহ</p>
+                        <p className="text-xs text-muted-foreground">সরবরাহ</p>
                         <p className="text-xs font-medium">{p.volume?.toFixed(0) || "—"} {p.unit}</p>
                       </div>
                     </div>

@@ -17,7 +17,7 @@ import { useQuery } from "@tanstack/react-query";
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const speciesMeta: Record<string, { label: string; icon: React.ReactNode }> = {
-  cow: { label: "গাবি", icon: <Beef className="w-4 h-4" /> },
+  cow: { label: "গরু", icon: <Beef className="w-4 h-4" /> },
   goat: { label: "ছাগল", icon: <Beef className="w-4 h-4" /> },
   buffalo: { label: "মহিষ", icon: <Beef className="w-4 h-4" /> },
   chicken: { label: "মুরগি", icon: <Beef className="w-4 h-4" /> },
@@ -25,9 +25,9 @@ const speciesMeta: Record<string, { label: string; icon: React.ReactNode }> = {
 
 const statusMeta: Record<string, { color: string; bg: string }> = {
   "সুস্থ": { color: "text-emerald-700 dark:text-emerald-400", bg: "bg-emerald-100 dark:bg-emerald-900/30" },
-  "সরতকর": { color: "text-amber-700 dark:text-amber-400", bg: "bg-amber-100 dark:bg-amber-900/30" },
-  "সরাসরি": { color: "text-red-700 dark:text-red-400", bg: "bg-red-100 dark:bg-red-900/30" },
-  "রোগাক্রানত": { color: "text-orange-700 dark:text-orange-400", bg: "bg-orange-100 dark:bg-orange-900/30" },
+  "সতর্ক": { color: "text-amber-700 dark:text-amber-400", bg: "bg-amber-100 dark:bg-amber-900/30" },
+  "বিপদজনক": { color: "text-red-700 dark:text-red-400", bg: "bg-red-100 dark:bg-red-900/30" },
+  "রোগাক্রান্ত": { color: "text-orange-700 dark:text-orange-400", bg: "bg-orange-100 dark:bg-orange-900/30" },
 };
 
 function fetchAnimals(species?: string, status?: string) {
@@ -76,13 +76,13 @@ export default function AnimalHealth() {
       className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-bold mb-1">পশু সুস্থ্য পর্যবেক্ষণ</h1>
-          <p className="text-muted-foreground">তাত্ক্ষণিক IoT সেনসরের মাধ্যমে পশুর সুস্থ্য মোনিটরিং</p>
+          <h1 className="text-3xl font-bold mb-1">পশু স্বাস্থ্য পর্যবেক্ষণ</h1>
+          <p className="text-muted-foreground">তাৎক্ষণিক IoT সেন্সরের মাধ্যমে পশুর স্বাস্থ্য মনিটরিং</p>
         </div>
         <div className="flex items-center gap-2">
           {alerts?.length > 0 && (
             <Badge className="bg-red-100 text-red-700 gap-1">
-              <AlertTriangle className="w-3 h-3" /> {alerts.length} সরাসরি
+              <AlertTriangle className="w-3 h-3" /> {alerts.length} জরুরি সতর্কতা
             </Badge>
           )}
         </div>
@@ -98,7 +98,7 @@ export default function AnimalHealth() {
           <Button size="sm" variant={speciesFilter === "" ? "default" : "outline"} onClick={() => setSpeciesFilter("")}>
             <Filter className="w-3 h-3 mr-1" />সব
           </Button>
-          <Button size="sm" variant={speciesFilter === "cow" ? "default" : "outline"} onClick={() => setSpeciesFilter("cow")}>গাবি
+          <Button size="sm" variant={speciesFilter === "cow" ? "default" : "outline"} onClick={() => setSpeciesFilter("cow")}>গরু
           </Button>
           <Button size="sm" variant={speciesFilter === "goat" ? "default" : "outline"} onClick={() => setSpeciesFilter("goat")}>ছাগল
           </Button>
@@ -167,12 +167,12 @@ export default function AnimalHealth() {
                             </div>
                             <div className="flex items-center gap-1 text-xs">
                               <Activity className="w-3 h-3 text-blue-500" />
-                              <span className="text-muted-foreground">শ্বাসকরেষ দর:</span>
+                              <span className="text-muted-foreground">শ্বাসক্রিয়া হার:</span>
                               <span className="font-medium">{a.respiratoryRate || "—"}/min</span>
                             </div>
                             <div className="flex items-center gap-1 text-xs">
                               <Weight className="w-3 h-3 text-slate-500" />
-                              <span className="text-muted-foreground">সরণদার:</span>
+                              <span className="text-muted-foreground">সক্রিয়তা:</span>
                               <span className="font-medium">{a.activity?.toFixed(0) || "—"}%</span>
                             </div>
                           </div>
@@ -203,8 +203,8 @@ export default function AnimalHealth() {
                         <AlertTriangle className="w-5 h-5" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-semibold text-sm">{a.name || a.animalId} — সরাসরি সুস্থ্য সতর্কতা</p>
-                        <p className="text-xs text-muted-foreground">সুস্থ্য স্কোর: {Math.round(a.healthScore || 0)} • স্থিতি: {a.status}</p>
+                        <p className="font-semibold text-sm">{a.name || a.animalId} — জরুরি স্বাস্থ্য সতর্কতা</p>
+                        <p className="text-xs text-muted-foreground">স্বাস্থ্য স্কোর: {Math.round(a.healthScore || 0)} • স্থিতি: {a.status}</p>
                         <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1"><Thermometer className="w-3 h-3" /> {a.temperature?.toFixed(1)}°C</span>
                           <span className="flex items-center gap-1"><Heart className="w-3 h-3" /> {a.heartRate} bpm</span>
@@ -220,7 +220,7 @@ export default function AnimalHealth() {
           ) : (
             <Card className="p-12 text-center">
               <CheckCircle className="w-10 h-10 text-emerald-500 mx-auto mb-3" />
-              <p className="text-muted-foreground">কোনো সরাসরি সতর্কতা নেই</p>
+              <p className="text-muted-foreground">কোনো জরুরি সতর্কতা নেই</p>
             </Card>
           )}
         </TabsContent>
@@ -241,15 +241,15 @@ export default function AnimalHealth() {
                       <div className="flex justify-between text-sm"><span className="text-muted-foreground">নাম</span><span className="font-medium">{selectedAnimal.name || "—"}</span></div>
                       <div className="flex justify-between text-sm"><span className="text-muted-foreground">প্রাণী</span><span className="font-medium">{speciesMeta[selectedAnimal.species]?.label || selectedAnimal.species}</span></div>
                       <div className="flex justify-between text-sm"><span className="text-muted-foreground">বয়স</span><span className="font-medium">{selectedAnimal.age || "—"} বছর</span></div>
-                      <div className="flex justify-between text-sm"><span className="text-muted-foreground">অক্ষী</span><span className="font-medium">{selectedAnimal.weight || "—"} কিগ্রাম</span></div>
+                      <div className="flex justify-between text-sm"><span className="text-muted-foreground">ওজন</span><span className="font-medium">{selectedAnimal.weight || "—"} কিগ্রাম</span></div>
                       <div className="flex justify-between text-sm"><span className="text-muted-foreground">অবস্থান</span><span className="font-medium">{selectedAnimal.location}</span></div>
                     </CardContent>
                   </Card>
                   <Card>
-                    <CardHeader className="pb-2"><CardTitle className="text-sm">সুস্থ্য সূচক</CardTitle></CardHeader>
+                    <CardHeader className="pb-2"><CardTitle className="text-sm">স্বাস্থ্য সূচক</CardTitle></CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex justify-between text-sm items-center">
-                        <span className="text-muted-foreground">সুস্থ্য স্কোর</span>
+                        <span className="text-muted-foreground">স্বাস্থ্য স্কোর</span>
                         <Badge className={`${statusMeta[selectedAnimal.status]?.bg || ""} ${statusMeta[selectedAnimal.status]?.color || ""}`}>
                           {Math.round(selectedAnimal.healthScore || 100)}/100
                         </Badge>
@@ -258,13 +258,13 @@ export default function AnimalHealth() {
                         <div className={`h-full rounded-full ${healthScoreBg(selectedAnimal.healthScore || 100)}`}
                           style={{ width: `${Math.min(100, selectedAnimal.healthScore || 0)}%` }} />
                       </div>
-                      <div className="flex justify-between text-sm"><span className="text-muted-foreground">সীতি</span><span className="font-medium">{selectedAnimal.status}</span></div>
-                      <div className="flex justify-between text-sm"><span className="text-muted-foreground">শেষ টিকাসন</span><span className="font-medium">{selectedAnimal.lastVaccination || "—"}</span></div>
+                      <div className="flex justify-between text-sm"><span className="text-muted-foreground">অবস্থা</span><span className="font-medium">{selectedAnimal.status}</span></div>
+                      <div className="flex justify-between text-sm"><span className="text-muted-foreground">শেষ টিকাদান</span><span className="font-medium">{selectedAnimal.lastVaccination || "—"}</span></div>
                       <div className="flex justify-between text-sm"><span className="text-muted-foreground">শেষ পরীক্ষা</span><span className="font-medium">{selectedAnimal.lastCheckup || "—"}</span></div>
                     </CardContent>
                   </Card>
                   <Card>
-                    <CardHeader className="pb-2"><CardTitle className="text-sm">তাত্ক্ষণিক সূচক</CardTitle></CardHeader>
+                    <CardHeader className="pb-2"><CardTitle className="text-sm">তাৎক্ষণিক সূচক</CardTitle></CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex justify-between text-sm items-center">
                         <span className="text-muted-foreground flex items-center gap-1"><Thermometer className="w-3 h-3 text-red-500" /> তাপমাত্রা</span>
@@ -275,11 +275,11 @@ export default function AnimalHealth() {
                         <span className="font-medium">{selectedAnimal.heartRate || "—"} bpm</span>
                       </div>
                       <div className="flex justify-between text-sm items-center">
-                        <span className="text-muted-foreground flex items-center gap-1"><Activity className="w-3 h-3 text-blue-500" /> শ্বাসকরেষ দর</span>
+                        <span className="text-muted-foreground flex items-center gap-1"><Activity className="w-3 h-3 text-blue-500" /> শ্বাসক্রিয়া হার</span>
                         <span className="font-medium">{selectedAnimal.respiratoryRate || "—"}/min</span>
                       </div>
                       <div className="flex justify-between text-sm items-center">
-                        <span className="text-muted-foreground flex items-center gap-1"><Weight className="w-3 h-3 text-slate-500" /> সরণদার</span>
+                        <span className="text-muted-foreground flex items-center gap-1"><Weight className="w-3 h-3 text-slate-500" /> সক্রিয়তা</span>
                         <span className="font-medium">{selectedAnimal.activity?.toFixed(0) || "—"}%</span>
                       </div>
                       <div className="flex justify-between text-sm items-center">

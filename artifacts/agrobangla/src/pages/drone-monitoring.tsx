@@ -17,9 +17,9 @@ function fetchDrones() {
 }
 
 const statusMeta: Record<string, { color: string; bg: string; icon: React.ReactNode }> = {
-  "হারিয়ে মশন": { color: "text-emerald-700", bg: "bg-emerald-100", icon: <Zap className="w-4 h-4" /> },
-  "হারিয়ে দশ": { color: "text-amber-700", bg: "bg-amber-100", icon: <BatteryWarning className="w-4 h-4" /> },
-  "রিসেশ্ন": { color: "text-red-700", bg: "bg-red-100", icon: <BatteryLow className="w-4 h-4" /> },
+  "মিশনে আছে": { color: "text-emerald-700", bg: "bg-emerald-100", icon: <Zap className="w-4 h-4" /> },
+  "অপেক্ষায়": { color: "text-amber-700", bg: "bg-amber-100", icon: <BatteryWarning className="w-4 h-4" /> },
+  "চার্জিং": { color: "text-red-700", bg: "bg-red-100", icon: <BatteryLow className="w-4 h-4" /> },
 };
 
 function batteryColor(pct: number) {
@@ -40,7 +40,7 @@ export default function DroneMonitoring() {
           <p className="text-muted-foreground">বায়ুরেস স্঵য়ুংখরে সদরাস দশ সহ সরসরে সদরাস ফলরিখাস মশন</p>
         </div>
         <Badge variant="secondary" className="gap-1">
-          <Activity className="w-3 h-3" /> সারসরে সদরাস মশন
+          <Activity className="w-3 h-3" /> লাইভ মনিটরিং
         </Badge>
       </div>
 
@@ -65,7 +65,7 @@ export default function DroneMonitoring() {
                         <div>
                           <p className="font-semibold text-sm">{d.droneId}</p>
                           <p className="text-[10px] text-muted-foreground">
-                            {d.lastMission ? `শেষ মশন: ${d.lastMission}` : "মশন সম্ন নেই"}
+                            {d.lastMission ? `শেষ মিশন: ${d.lastMission}` : "কোনো মিশন নেই"}
                           </p>
                         </div>
                       </div>
@@ -78,7 +78,7 @@ export default function DroneMonitoring() {
                     <div className="mb-4">
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className="text-muted-foreground flex items-center gap-1">
-                          <Battery className="w-3 h-3" /> বাতারি
+                          <Battery className="w-3 h-3" /> ব্যাটারি
                         </span>
                         <span className="font-medium">{d.battery?.toFixed(0) || "—"}%</span>
                       </div>
@@ -92,7 +92,7 @@ export default function DroneMonitoring() {
                     <div className="grid grid-cols-2 gap-3 mb-3">
                       <div className="p-2 rounded-lg bg-muted/50">
                         <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                          <Crosshair className="w-3 h-3" /> উল্লনননত
+                          <Crosshair className="w-3 h-3" /> উচ্চতা
                         </p>
                         <p className="text-sm font-semibold">{d.altitude?.toFixed(0) || "—"} মিটার</p>
                       </div>
@@ -104,7 +104,7 @@ export default function DroneMonitoring() {
                       </div>
                       <div className="p-2 rounded-lg bg-muted/50">
                         <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                          <MapPin className="w-3 h-3" /> অন্তসরদ
+                          <MapPin className="w-3 h-3" /> স্থানাঙ্ক
                         </p>
                         <p className="text-sm font-semibold">{d.lat?.toFixed(4) || "—"}, {d.lon?.toFixed(4) || "—"}</p>
                       </div>
@@ -120,7 +120,7 @@ export default function DroneMonitoring() {
                     {d.nextMission && (
                       <div className="p-2 rounded-lg bg-sky-50 dark:bg-sky-950/20 border border-sky-200 mb-3">
                         <p className="text-xs text-sky-700 dark:text-sky-400 flex items-center gap-1">
-                          <ArrowRight className="w-3 h-3" /> পরবর্তী মশন: {d.nextMission}
+                          <ArrowRight className="w-3 h-3" /> পরবর্তী মিশন: {d.nextMission}
                         </p>
                       </div>
                     )}

@@ -56,14 +56,14 @@ export default function PrecisionAg() {
       className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-bold mb-1">নির্঵াচা কৃষি</h1>
+          <h1 className="text-3xl font-bold mb-1">নির্ভুল কৃষি</h1>
           <p className="text-muted-foreground">মাটি পরীক্ষা ভিত্তিক সার সুপারিশ এবং পরামর্শ</p>
         </div>
       </div>
 
       <div className="relative mb-6">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input className="pl-9" placeholder="সার্স ID বা ফসল দিয়ে খুনুন..."
+        <Input className="pl-9" placeholder="জমির ID বা ফসল দিয়ে খুঁজুন..."
           value={search} onChange={e => setSearch(e.target.value)} />
       </div>
 
@@ -124,7 +124,7 @@ export default function PrecisionAg() {
           ) : (
             <Card className="p-12 text-center">
               <Sprout className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">কোনো সার্স ডেটা পাওয়া যায়নি</p>
+              <p className="text-muted-foreground">কোনো জমির ডেটা পাওয়া যায়নি</p>
             </Card>
           )}
         </div>
@@ -143,9 +143,9 @@ export default function PrecisionAg() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {/* Nutrients */}
-                    {nutrientBar(selectedField.nitrogen || 0, 200, "নাষাবেশি (N)", "#3b82f6")}
-                    {nutrientBar(selectedField.phosphorus || 0, 60, "ফসসরের (P)", "#8b5cf6")}
-                    {nutrientBar(selectedField.potassium || 0, 300, "পতাসিয়াম (K)", "#f59e0b")}
+                    {nutrientBar(selectedField.nitrogen || 0, 200, "নাইট্রোজেন (N)", "#3b82f6")}
+                    {nutrientBar(selectedField.phosphorus || 0, 60, "ফসফরাস (P)", "#8b5cf6")}
+                    {nutrientBar(selectedField.potassium || 0, 300, "পটাসিয়াম (K)", "#f59e0b")}
                     {nutrientBar(selectedField.organicMatter || 0, 5, "জৈব সার", "#10b981")}
 
                     {/* Recommendation */}
@@ -157,9 +157,9 @@ export default function PrecisionAg() {
                     </div>
                     <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200">
                       <p className="text-xs font-semibold text-blue-800 dark:text-blue-300 mb-1 flex items-center gap-1">
-                        <ArrowRight className="w-3 h-3" /> পরবর্তী দন
+                        <ArrowRight className="w-3 h-3" /> পরবর্তী পদক্ষেপ
                       </p>
-                      <p className="text-xs text-blue-700 dark:text-blue-400 leading-relaxed">{selectedField.nextAction || "কোনো দন নেই"}</p>
+                      <p className="text-xs text-blue-700 dark:text-blue-400 leading-relaxed">{selectedField.nextAction || "কোনো পদক্ষেপ নেই"}</p>
                     </div>
                     <Button size="sm" variant="outline" className="w-full" onClick={() => setSelectedField(null)}>
                       সরিয়ে যান
@@ -170,7 +170,7 @@ export default function PrecisionAg() {
             ) : (
               <Card className="p-8 text-center sticky top-20">
                 <Sprout className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">সার্স নির্বাচন করুন সার সুপারিশ দেখতে</p>
+                <p className="text-sm text-muted-foreground">জমি নির্বাচন করুন সার সুপারিশ দেখতে</p>
               </Card>
             )}
           </AnimatePresence>
