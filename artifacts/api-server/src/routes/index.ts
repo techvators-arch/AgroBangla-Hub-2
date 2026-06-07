@@ -11,6 +11,7 @@ import marketplaceRouter from "./marketplace";
 import krishokCardRouter from "./krishok_card";
 import ordersRouter from "./orders";
 import aiAssistantRouter from "./ai-assistant";
+import iotRouter from "./iot";
 
 const router: IRouter = Router();
 
@@ -26,5 +27,6 @@ router.use(marketplaceRouter);
 router.use(krishokCardRouter);
 router.use(ordersRouter);
 router.use(aiAssistantRouter);
+router.use(iotRouter);
 
 export default router;

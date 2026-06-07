@@ -86,21 +86,103 @@ export const sensorAlertsTable = pgTable("sensor_alerts", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// ── Precision agriculture ──
+export const precisionAgTable = pgTable("precision_agriculture", {
+  id: serial("id").primaryKey(),
+  fieldId: text("field_id").notNull(),
+  cropType: text("crop_type").notNull(),
+  fieldSize: real("field_size"),
+  soilType: text("soil_type"),
+  nitrogen: real("nitrogen"),
+  phosphorus: real("phosphorus"),
+  potassium: real("potassium"),
+  organicMatter: real("organic_matter"),
+  recommendation: text("recommendation"),
+  nextAction: text("next_action"),
+  location: text("location").notNull().default("সাদেরাবাদ"),
+  lat: real("lat"),
+  lon: real("lon"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// ── Drone monitoring ──
+export const droneTable = pgTable("drone_monitoring", {
+  id: serial("id").primaryKey(),
+  droneId: text("drone_id").notNull(),
+  status: text("status").notNull().default("নির্঵াচন"), // নির্঵াচন, হারিয়ে দশ, হারিয়ে মশন, রিসেশ্ন
+  battery: real("battery"),
+  altitude: real("altitude"),
+  speed: real("speed"),
+  coverageArea: real("coverage_area"),
+  lat: real("lat"),
+  lon: real("lon"),
+  imageUrl: text("image_url"),
+  lastMission: text("last_mission"),
+  nextMission: text("next_mission"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// ── Market intelligence ──
+export const marketPricesTable = pgTable("market_prices", {
+  id: serial("id").primaryKey(),
+  cropName: text("crop_name").notNull(),
+  variety: text("variety"),
+  wholesalePrice: real("wholesale_price").notNull(),
+  retailPrice: real("retail_price").notNull(),
+  marketName: text("market_name").notNull().default("নেত্রকোনা বাজার"),
+  district: text("district").default("ঢাকা"),
+  trend: text("trend").default("স্থির"), // বেশি, কম, স্থির
+  volume: real("volume"),
+  unit: text("unit").default("তন"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// ── Smart irrigation ──
+export const irrigationTable = pgTable("smart_irrigation", {
+  id: serial("id").primaryKey(),
+  fieldId: text("field_id").notNull(),
+  cropType: text("crop_type").notNull(),
+  scheduleType: text("schedule_type").notNull().default("নির্দিষ্ট"), // নির্দিষ্ট, তাত্ক্ষণিক
+  startTime: text("start_time"),
+  duration: integer("duration"),
+  waterAmount: real("water_amount"),
+  soilMoistureThreshold: real("soil_moisture_threshold"),
+  nextRun: text("next_run"),
+  isActive: boolean("is_active").notNull().default(true),
+  status: text("status").default("সন্ধি"), // সন্ধি, চলুমান, বান্দ
+  location: text("location").notNull().default("সাদেরাবাদ"),
+  lat: real("lat"),
+  lon: real("lon"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // ── Schemas ──
 export const insertSensorReadingSchema = createInsertSchema(sensorReadingsTable).omit({ id: true, createdAt: true });
 export const insertWeatherDataSchema = createInsertSchema(weatherDataTable).omit({ id: true, createdAt: true });
 export const insertAnimalHealthSchema = createInsertSchema(animalHealthTable).omit({ id: true, updatedAt: true });
 export const insertChatMessageSchema = createInsertSchema(chatMessagesTable).omit({ id: true, createdAt: true });
 export const insertSensorAlertSchema = createInsertSchema(sensorAlertsTable).omit({ id: true, createdAt: true, isRead: true });
+export const insertPrecisionAgSchema = createInsertSchema(precisionAgTable).omit({ id: true, createdAt: true });
+export const insertDroneSchema = createInsertSchema(droneTable).omit({ id: true, updatedAt: true });
+export const insertMarketPriceSchema = createInsertSchema(marketPricesTable).omit({ id: true, updatedAt: true });
+export const insertIrrigationSchema = createInsertSchema(irrigationTable).omit({ id: true, createdAt: true });
 
 export type SensorReading = typeof sensorReadingsTable.$inferSelect;
 export type WeatherData = typeof weatherDataTable.$inferSelect;
 export type AnimalHealth = typeof animalHealthTable.$inferSelect;
 export type ChatMessage = typeof chatMessagesTable.$inferSelect;
 export type SensorAlert = typeof sensorAlertsTable.$inferSelect;
+export type PrecisionAg = typeof precisionAgTable.$inferSelect;
+export type Drone = typeof droneTable.$inferSelect;
+export type MarketPrice = typeof marketPricesTable.$inferSelect;
+export type Irrigation = typeof irrigationTable.$inferSelect;
 
 export type InsertSensorReading = z.infer<typeof insertSensorReadingSchema>;
 export type InsertWeatherData = z.infer<typeof insertWeatherDataSchema>;
 export type InsertAnimalHealth = z.infer<typeof insertAnimalHealthSchema>;
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 export type InsertSensorAlert = z.infer<typeof insertSensorAlertSchema>;
+export type InsertPrecisionAg = z.infer<typeof insertPrecisionAgSchema>;
+export type InsertDrone = z.infer<typeof insertDroneSchema>;
+export type InsertMarketPrice = z.infer<typeof insertMarketPriceSchema>;
+export type InsertIrrigation = z.infer<typeof insertIrrigationSchema>;

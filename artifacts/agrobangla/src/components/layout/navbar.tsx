@@ -18,6 +18,8 @@ import {
   Users, Sprout, ShoppingBag, CreditCard, Bell, PackageSearch,
   LogIn, LogOut, Settings, ChevronDown, CheckCheck, Loader2,
   AlertCircle, Bot, Home, BarChart3, X,
+  CloudRain, Gauge, Heart, Radio,
+  Plane, TrendingUp, Droplets,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { useState, useEffect } from "react";
@@ -31,6 +33,17 @@ const mainLinks = [
 ];
 
 const aiLink = { href: "/ai-assistant", label: "AI সহকারী", icon: Bot };
+
+const iotLinks = [
+  { href: "/weather", label: "আবহাওয়া", icon: CloudRain },
+  { href: "/sensor-dashboard", label: "সেনসর ড্যাশবোর্ড", icon: Gauge },
+  { href: "/animal-health", label: "পশু স্বাস্থ্য", icon: Heart },
+  { href: "/live-chat", label: "AI লাইভ চ্যাট", icon: Radio },
+  { href: "/precision-ag", label: "নির্বাচন কৃষি", icon: Sprout },
+  { href: "/drone-monitoring", label: "ড্রোন পর্যবেক্ষণ", icon: Plane },
+  { href: "/market-intelligence", label: "বাজার গোয়েন্দা", icon: TrendingUp },
+  { href: "/smart-irrigation", label: "স্মার্ট সেচ", icon: Droplets },
+];
 
 const serviceGroups = [
   {
@@ -217,6 +230,35 @@ export function Navbar() {
               {aiLink.label}
               <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500 text-white font-bold leading-none">NEW</span>
             </Link>
+
+            {/* IoT links */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 outline-none text-muted-foreground hover:text-foreground hover:bg-muted/60">
+                  <CloudRain className="w-4 h-4 shrink-0" />
+                  IoT
+                  <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" sideOffset={6} className="w-56 rounded-xl shadow-xl border-border/60 p-1">
+                {iotLinks.map(link => {
+                  const Icon = link.icon;
+                  const active = isActive(link.href);
+                  return (
+                    <DropdownMenuItem key={link.href} asChild className="rounded-lg p-0 focus:bg-transparent">
+                      <Link href={link.href}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${
+                          active ? "bg-primary/8 text-primary" : "hover:bg-muted/60"
+                        }`}>
+                        <Icon className={`w-4 h-4 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                        <span className="text-sm font-medium">{link.label}</span>
+                        {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
+                      </Link>
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
 
           {/* ── Desktop right links ── */}
@@ -401,6 +443,29 @@ export function Navbar() {
                       {aiLink.label}
                       <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500 text-white font-bold">NEW</span>
                     </Link>
+                  </div>
+
+                  <Separator />
+
+                  {/* IoT pages */}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-2 mb-1.5">IoT ফিচার</p>
+                    {iotLinks.map(link => {
+                      const Icon = link.icon;
+                      const active = isActive(link.href);
+                      return (
+                        <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}
+                          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors mb-0.5 ${
+                            active ? "text-primary bg-primary/8" : "text-foreground hover:bg-muted/60"
+                          }`}>
+                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${active ? "bg-primary/15" : "bg-muted"}`}>
+                            <Icon className={`w-3.5 h-3.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                          </div>
+                          {link.label}
+                          {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
+                        </Link>
+                      );
+                    })}
                   </div>
 
                   <Separator />

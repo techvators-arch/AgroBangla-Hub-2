@@ -18,6 +18,14 @@ import Marketplace from "@/pages/marketplace";
 import KrishokCard from "@/pages/krishok-card";
 import OrderTracking from "@/pages/orders";
 import AIAssistant from "@/pages/ai-assistant";
+import Weather from "@/pages/weather";
+import SensorDashboard from "@/pages/sensor-dashboard";
+import AnimalHealth from "@/pages/animal-health";
+import LiveChat from "@/pages/live-chat";
+import PrecisionAg from "@/pages/precision-ag";
+import DroneMonitoring from "@/pages/drone-monitoring";
+import MarketIntelligence from "@/pages/market-intelligence";
+import SmartIrrigation from "@/pages/smart-irrigation";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -37,6 +45,14 @@ function Router() {
         <Route path="/krishok-card" component={KrishokCard} />
         <Route path="/orders" component={OrderTracking} />
         <Route path="/ai-assistant" component={AIAssistant} />
+        <Route path="/weather" component={Weather} />
+        <Route path="/sensor-dashboard" component={SensorDashboard} />
+        <Route path="/animal-health" component={AnimalHealth} />
+        <Route path="/live-chat" component={LiveChat} />
+        <Route path="/precision-ag" component={PrecisionAg} />
+        <Route path="/drone-monitoring" component={DroneMonitoring} />
+        <Route path="/market-intelligence" component={MarketIntelligence} />
+        <Route path="/smart-irrigation" component={SmartIrrigation} />
         <Route component={NotFound} />
       </Switch>
     </Layout>
