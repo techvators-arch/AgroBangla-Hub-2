@@ -16,7 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const sensorMeta: Record<string, { label: string; unit: string; icon: React.ReactNode; color: string; min: number; max: number }> = {
-  soil_moisture: { label: "মাটির শিতষ্ণতা", unit: "%", icon: <Droplets className="w-5 h-5 text-blue-500" />, color: "bg-blue-500", min: 30, max: 80 },
+  soil_moisture: { label: "মাটির আর্দ্রতা", unit: "%", icon: <Droplets className="w-5 h-5 text-blue-500" />, color: "bg-blue-500", min: 30, max: 80 },
   ph: { label: "pH মান", unit: "pH", icon: <FlaskConical className="w-5 h-5 text-purple-500" />, color: "bg-purple-500", min: 5.5, max: 8.5 },
   salinity: { label: "লবণাক্ততা", unit: "dS/m", icon: <Waves className="w-5 h-5 text-cyan-500" />, color: "bg-cyan-500", min: 0, max: 4 },
   tds: { label: "TDS", unit: "ppm", icon: <Gauge className="w-5 h-5 text-slate-500" />, color: "bg-slate-500", min: 0, max: 1000 },
@@ -37,9 +37,9 @@ function fetchReadings(type: string) {
 }
 
 function statusOf(value: number, meta: typeof sensorMeta[string]) {
-  if (value < meta.min * 0.5 || value > meta.max * 1.5) return { label: "সরাসরি", color: "bg-red-500" };
-  if (value < meta.min || value > meta.max) return { label: "সরতকর", color: "bg-amber-500" };
-  return { label: "সাবাবিক", color: "bg-emerald-500" };
+  if (value < meta.min * 0.5 || value > meta.max * 1.5) return { label: "বিপদজনক", color: "bg-red-500" };
+  if (value < meta.min || value > meta.max) return { label: "সতর্ক", color: "bg-amber-500" };
+  return { label: "স্বাভাবিক", color: "bg-emerald-500" };
 }
 
 function percentWithin(value: number, min: number, max: number) {
@@ -65,16 +65,16 @@ export default function SensorDashboard() {
       className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-bold mb-1">সেনসর ডেশবোর্ড</h1>
-          <p className="text-muted-foreground">তাত্ক্ষণিক সেনসর রিডিং এবং সতর্কতা মোনিটরিং</p>
+          <h1 className="text-3xl font-bold mb-1">সেন্সর ড্যাশবোর্ড</h1>
+          <p className="text-muted-foreground">তাৎক্ষণিক সেন্সর রিডিং ও সতর্কতা মনিটরিং</p>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="gap-1">
-            <Wifi className="w-3 h-3" /> সাদেরাবাদ
+            <Wifi className="w-3 h-3" /> সংযুক্ত
           </Badge>
           {unreadAlerts.length > 0 && (
             <Badge className="bg-red-100 text-red-700 gap-1">
-              <Bell className="w-3 h-3" /> {unreadAlerts.length} অপপাঠিত
+              <Bell className="w-3 h-3" /> {unreadAlerts.length} অপঠিত
             </Badge>
           )}
         </div>
@@ -82,9 +82,9 @@ export default function SensorDashboard() {
 
       <Tabs defaultValue="live" className="w-full">
         <TabsList className="mb-6">
-          <TabsTrigger value="live">তাত্ক্ষণিক ডেটা</TabsTrigger>
+          <TabsTrigger value="live">তাৎক্ষণিক ডেটা</TabsTrigger>
           <TabsTrigger value="alerts">সতর্কতা ({alerts?.length || 0})</TabsTrigger>
-          <TabsTrigger value="history">সেনসর তথ্য (নির্বাচন)</TabsTrigger>
+          <TabsTrigger value="history">সেন্সর তথ্য (নির্বাচন)</TabsTrigger>
         </TabsList>
 
         <TabsContent value="live">
@@ -99,7 +99,7 @@ export default function SensorDashboard() {
                 const st = statusOf(s.value, meta);
                 return (
                   <motion.div key={s.type} whileHover={{ scale: 1.02 }} className="cursor-pointer" onClick={() => setActiveSensor(s.type)}>
-                    <Card className={`hover:border-primary/30 transition-colors ${st.label === "সরাসরি" ? "border-red-300" : st.label === "সরতকর" ? "border-amber-300" : ""}`}>
+                    <Card className={`hover:border-primary/30 transition-colors ${st.label === "বিপদজনক" ? "border-red-300" : st.label === "সতর্ক" ? "border-amber-300" : ""}`}>
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
@@ -138,7 +138,7 @@ export default function SensorDashboard() {
           ) : (
             <Card className="p-12 text-center">
               <WifiOff className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">ডেটা পাওয়া যায়নি — সেনসর সার্ভারে সাংশদ হতে পারে না।</p>
+              <p className="text-muted-foreground">ডেটা পাওয়া যায়নি — সেন্সর সার্ভারে সংযোগ হচ্ছে না।</p>
             </Card>
           )}
         </TabsContent>
@@ -150,15 +150,15 @@ export default function SensorDashboard() {
             <div className="space-y-3">
               {alerts.map((a: any, i: number) => (
                 <motion.div key={a.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
-                  <Card className={`${a.severity === "সরাসরি" ? "border-red-300 bg-red-50/30 dark:bg-red-900/10" : "border-amber-200 bg-amber-50/30 dark:bg-amber-900/10"}`}>
+                  <Card className={`${a.severity === "বিপদজনক" ? "border-red-300 bg-red-50/30 dark:bg-red-900/10" : "border-amber-200 bg-amber-50/30 dark:bg-amber-900/10"}`}>
                     <CardContent className="p-4 flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${a.severity === "সরাসরি" ? "bg-red-100 text-red-600" : "bg-amber-100 text-amber-600"}`}>
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${a.severity === "বিপদজনক" ? "bg-red-100 text-red-600" : "bg-amber-100 text-amber-600"}`}>
                         <AlertTriangle className="w-5 h-5" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-semibold text-sm">{a.title}</span>
-                          <Badge className="text-[10px]" variant={a.severity === "সরাসরি" ? "destructive" : "secondary"}>{a.severity}</Badge>
+                          <Badge className="text-[10px]" variant={a.severity === "বিপদজনক" ? "destructive" : "secondary"}>{a.severity}</Badge>
                           {!a.isRead && <span className="w-2 h-2 rounded-full bg-primary" />}
                         </div>
                         <p className="text-xs text-muted-foreground mt-0.5">{a.description}</p>
@@ -188,7 +188,7 @@ export default function SensorDashboard() {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">{sensorMeta[activeSensor]?.label || activeSensor} — সর্বশেষ রিডিং</h3>
-                  <Button size="sm" variant="ghost" onClick={() => setActiveSensor(null)}>সরিয়ে যান</Button>
+                  <Button size="sm" variant="ghost" onClick={() => setActiveSensor(null)}>বন্ধ করুন</Button>
                 </div>
                 {rLoading ? (
                   <div className="space-y-2">{Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-10" />)}</div>
@@ -213,7 +213,7 @@ export default function SensorDashboard() {
             ) : (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-12">
                 <Activity className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground">সেনসর নির্বাচন করুন তথ্য দেখতে</p>
+                <p className="text-muted-foreground">সেন্সর নির্বাচন করুন তথ্য দেখতে</p>
                 <div className="flex flex-wrap gap-2 justify-center mt-4">
                   {Object.keys(sensorMeta).map(type => (
                     <Button key={type} size="sm" variant="outline" onClick={() => setActiveSensor(type)}>

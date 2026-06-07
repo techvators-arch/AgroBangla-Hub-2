@@ -36,10 +36,10 @@ const aiLink = { href: "/ai-assistant", label: "AI সহকারী", icon: Bo
 
 const iotLinks = [
   { href: "/weather", label: "আবহাওয়া", icon: CloudRain },
-  { href: "/sensor-dashboard", label: "সেনসর ড্যাশবোর্ড", icon: Gauge },
+  { href: "/sensor-dashboard", label: "সেন্সর ড্যাশবোর্ড", icon: Gauge },
   { href: "/animal-health", label: "পশু স্বাস্থ্য", icon: Heart },
   { href: "/live-chat", label: "AI লাইভ চ্যাট", icon: Radio },
-  { href: "/precision-ag", label: "নির্বাচন কৃষি", icon: Sprout },
+  { href: "/precision-ag", label: "নির্ভুল কৃষি", icon: Sprout },
   { href: "/drone-monitoring", label: "ড্রোন পর্যবেক্ষণ", icon: Plane },
   { href: "/market-intelligence", label: "বাজার গোয়েন্দা", icon: TrendingUp },
   { href: "/smart-irrigation", label: "স্মার্ট সেচ", icon: Droplets },
