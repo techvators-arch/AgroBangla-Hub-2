@@ -3,9 +3,9 @@ import { useDetectDisease, useGetDiseaseHistory } from "@workspace/api-client-re
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -39,7 +39,8 @@ const COLOR_LABELS: Record<string, { label: string; bg: string }> = {
 };
 
 interface ImageResult {
-  id: number; cropType: string; diseaseName: string; diseaseNameBn: string;
+  id: number; cropType: string; cropTypeBn?: string;
+  diseaseName: string; diseaseNameBn: string;
   severity: string; treatment: string; treatmentBn: string;
   symptoms: string; symptomsBn: string; confidence: number;
   dominantColor: string;
@@ -59,6 +60,11 @@ function ResultCard({ result }: { result: ImageResult }) {
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div>
+              {result.cropTypeBn && result.cropTypeBn !== "অজানা" && (
+                <p className="text-xs font-medium text-primary/80 mb-1 flex items-center gap-1">
+                  <Leaf className="w-3 h-3" /> {result.cropTypeBn} ({result.cropType})
+                </p>
+              )}
               <p className="font-bold text-xl">{result.diseaseNameBn}</p>
               <p className="text-muted-foreground text-sm">{result.diseaseName}</p>
             </div>
@@ -146,7 +152,6 @@ function ResultCard({ result }: { result: ImageResult }) {
 
 export default function DiseaseDetector() {
   /* ── Image upload state ── */
-  const [cropType, setCropType] = useState("rice");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageResult, setImageResult] = useState<ImageResult | null>(null);
@@ -190,7 +195,6 @@ export default function DiseaseDetector() {
     try {
       const formData = new FormData();
       formData.append("image", imageFile);
-      formData.append("cropType", cropType);
       const res = await fetch("/api/disease/detect-image", { method: "POST", body: formData });
       if (!res.ok) throw new Error("Server error");
       const data = await res.json();
@@ -227,17 +231,6 @@ export default function DiseaseDetector() {
             <TabsContent value="image" className="space-y-4">
               <Card>
                 <CardContent className="p-5 space-y-4">
-                  {/* Crop selector */}
-                  <div className="space-y-1.5">
-                    <Label>ফসলের ধরন</Label>
-                    <Select value={cropType} onValueChange={setCropType}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {CROPS.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
                   {/* Drop zone */}
                   <div
                     onClick={() => fileInputRef.current?.click()}

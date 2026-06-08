@@ -17,10 +17,12 @@ const CROP_NAMES_BN: Record<string, string> = {
 
 const GEMINI_PROMPT = `You are an expert agricultural plant disease diagnostician with deep knowledge of crop diseases in Bangladesh and South Asia.
 
-Analyze this plant/crop image carefully and provide a detailed disease diagnosis. Respond ONLY with a valid JSON object — no markdown, no extra text, no code fences.
+Analyze this plant/crop image carefully. First identify what crop/plant it is, then diagnose any diseases. Respond ONLY with a valid JSON object — no markdown, no extra text, no code fences.
 
 {
   "isPlant": true,
+  "cropType": "rice",
+  "cropTypeBn": "ধান",
   "diseaseName": "Scientific and common name in English",
   "diseaseNameBn": "রোগের নাম বাংলায়",
   "severity": "low",
@@ -40,12 +42,15 @@ Rules:
 - confidence is a decimal 0.0 to 1.0
 - colorAnalysis values are integers 0-100 (they should roughly sum to 100)
 - dominantColor must be one of: green, brown, yellow, white, dark
-- If NOT a plant: isPlant=false, diseaseName="Not a plant image", diseaseNameBn="উদ্ভিদের ছবি নয়", severity="low"
+- cropType should be in English (e.g. rice, wheat, potato, tomato, etc.)
+- cropTypeBn should be in Bengali
+- If NOT a plant: isPlant=false, diseaseName="Not a plant image", diseaseNameBn="উদ্ভিদের ছবি নয়", severity="low", cropType="unknown", cropTypeBn="অজানা"
 - If plant is HEALTHY: diseaseName="Healthy Plant", diseaseNameBn="সুস্থ গাছ", severity="low", confidence=0.95
 - Be specific: include exact fungicide names, dose (g/L or ml/L), and frequency`;
 
 interface DiseaseResult {
-  id: number; cropType: string; diseaseName: string; diseaseNameBn: string;
+  id: number; cropType: string; cropTypeBn: string;
+  diseaseName: string; diseaseNameBn: string;
   severity: string; treatment: string; treatmentBn: string;
   symptoms: string; symptomsBn: string; confidence: number;
   dominantColor: string;
@@ -58,15 +63,12 @@ const imageHistory: DiseaseResult[] = [];
 let nextImgId = 1;
 
 router.post("/disease/detect-image", upload.single("image"), async (req, res) => {
-  const cropType = (req.body?.cropType as string) || "rice";
-
   if (!req.file) {
     return res.status(400).json({ error: "ছবি দেওয়া হয়নি" });
   }
 
   try {
-    const cropNameBn = CROP_NAMES_BN[cropType] || cropType;
-    const prompt = `${GEMINI_PROMPT}\n\nThe farmer reports this is a ${cropType} (${cropNameBn}) crop. Use this context but also verify from the image itself.`;
+    const prompt = GEMINI_PROMPT;
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
@@ -107,7 +109,8 @@ router.post("/disease/detect-image", upload.single("image"), async (req, res) =>
 
     const result: DiseaseResult = {
       id: nextImgId++,
-      cropType,
+      cropType:    parsed.cropType    || "unknown",
+      cropTypeBn:  parsed.cropTypeBn  || "অজানা",
       diseaseName:    parsed.diseaseName    || "Unknown Disease",
       diseaseNameBn:  parsed.diseaseNameBn  || "অজানা রোগ",
       severity: ["low", "medium", "high"].includes(parsed.severity) ? parsed.severity : "medium",
