@@ -45,6 +45,9 @@ interface ImageResult {
   dominantColor: string;
   colorAnalysis: { green: number; brown: number; yellow: number; white: number; dark: number };
   detectedAt: string;
+  additionalInfo?: string;
+  additionalInfoBn?: string;
+  analyzedBy?: string;
 }
 
 function ResultCard({ result }: { result: ImageResult }) {
@@ -116,6 +119,25 @@ function ResultCard({ result }: { result: ImageResult }) {
             </p>
             <p className="text-sm text-green-700 dark:text-green-400 leading-relaxed">{result.treatmentBn}</p>
           </div>
+
+          {/* Additional info */}
+          {result.additionalInfoBn && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+              <p className="text-sm font-semibold mb-1 flex items-center gap-1.5 text-blue-800 dark:text-blue-300">
+                <Leaf className="w-4 h-4" /> অতিরিক্ত পরামর্শ
+              </p>
+              <p className="text-sm text-blue-700 dark:text-blue-400 leading-relaxed">{result.additionalInfoBn}</p>
+            </div>
+          )}
+
+          {/* Analyzed by badge */}
+          {result.analyzedBy === "gemini" && (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium">
+                ✦ Gemini AI দ্বারা বিশ্লেষণ করা হয়েছে
+              </span>
+            </div>
+          )}
         </CardContent>
       </Card>
     </motion.div>
