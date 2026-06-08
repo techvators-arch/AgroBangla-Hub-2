@@ -65,9 +65,12 @@ const serviceGroups = [
   },
 ];
 
+const marketLinks = [
+  { href: "/marketplace", label: "কৃষি বাজার", icon: ShoppingBag, desc: "পণ্য কিনুন বা বিক্রি করুন" },
+  { href: "/orders", label: "অর্ডার ট্র্যাকিং", icon: PackageSearch, desc: "আপনার অর্ডারের অবস্থা দেখুন" },
+];
+
 const quickLinks = [
-  { href: "/marketplace", label: "বাজার", icon: ShoppingBag },
-  { href: "/orders", label: "অর্ডার", icon: PackageSearch },
   { href: "/krishok-card", label: "কৃষক কার্ড", icon: CreditCard },
 ];
 
@@ -264,6 +267,45 @@ export function Navbar() {
 
           {/* ── Desktop right links ── */}
           <div className="hidden lg:flex items-center gap-0.5 mr-2">
+
+            {/* বাজার dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 outline-none ${
+                  isActive("/marketplace") || isActive("/orders")
+                    ? "text-primary bg-primary/8"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                }`}>
+                  <ShoppingBag className={`w-4 h-4 shrink-0 ${isActive("/marketplace") || isActive("/orders") ? "text-primary" : ""}`} />
+                  বাজার
+                  <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" sideOffset={6} className="w-52 rounded-xl shadow-xl border-border/60 p-1">
+                {marketLinks.map(link => {
+                  const Icon = link.icon;
+                  const active = isActive(link.href);
+                  return (
+                    <DropdownMenuItem key={link.href} asChild className="rounded-lg p-0 focus:bg-transparent">
+                      <Link href={link.href}
+                        className={`flex items-start gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${
+                          active ? "bg-primary/8 text-primary" : "hover:bg-muted/60"
+                        }`}>
+                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${active ? "bg-primary/15" : "bg-muted"}`}>
+                          <Icon className={`w-3.5 h-3.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium leading-tight">{link.label}</p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">{link.desc}</p>
+                        </div>
+                      </Link>
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* কৃষক কার্ড */}
             {quickLinks.map(link => {
               const Icon = link.icon;
               const active = isActive(link.href);
@@ -498,10 +540,10 @@ export function Navbar() {
 
                   <Separator />
 
-                  {/* Quick links */}
+                  {/* বাজার ও অর্ডার */}
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-2 mb-1.5">কেনাকাটা</p>
-                    {quickLinks.map(link => {
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-2 mb-1.5">বাজার ও কেনাকাটা</p>
+                    {[...marketLinks, ...quickLinks].map(link => {
                       const Icon = link.icon;
                       const active = isActive(link.href);
                       return (
@@ -513,6 +555,7 @@ export function Navbar() {
                             <Icon className={`w-3.5 h-3.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
                           </div>
                           {link.label}
+                          {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
                         </Link>
                       );
                     })}
