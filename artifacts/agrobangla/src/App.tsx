@@ -26,6 +26,7 @@ import PrecisionAg from "@/pages/precision-ag";
 import DroneMonitoring from "@/pages/drone-monitoring";
 import MarketIntelligence from "@/pages/market-intelligence";
 import SmartIrrigation from "@/pages/smart-irrigation";
+import Dashboard from "@/pages/dashboard";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -53,6 +54,7 @@ function Router() {
         <Route path="/drone-monitoring" component={DroneMonitoring} />
         <Route path="/market-intelligence" component={MarketIntelligence} />
         <Route path="/smart-irrigation" component={SmartIrrigation} />
+        <Route path="/dashboard" component={Dashboard} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

@@ -27,6 +27,7 @@ import { useState, useEffect } from "react";
 // ── Navigation structure ──────────────────────────────────────────
 const mainLinks = [
   { href: "/", label: "হোম", icon: Home },
+  { href: "/dashboard", label: "ড্যাশবোর্ড", icon: BarChart3 },
   { href: "/agro-map", label: "মানচিত্র", icon: Map },
   { href: "/disease-detector", label: "রোগ নির্ণয়", icon: Activity },
   { href: "/qa", label: "কৃষক প্রশ্ন", icon: MessageSquare },
