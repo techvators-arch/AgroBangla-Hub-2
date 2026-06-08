@@ -19,6 +19,7 @@ import {
   ShoppingBag, Plus, Phone, MapPin, Leaf, Trash2, Search, Package,
   ShoppingCart, Minus, X, CheckCircle,
   Zap, CreditCard, PackageCheck, Copy, TrendingUp, TrendingDown, Building2, Info, PackageSearch,
+  ImagePlus, Smartphone, Wallet,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -93,9 +94,11 @@ export default function Marketplace() {
   const [trackingCode, setTrackingCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [cart, setCart] = useState<Record<number, CartItem>>({});
-  const [cartStep, setCartStep] = useState<"cart" | "buyer" | "done">("cart");
+  const [cartStep, setCartStep] = useState<"cart" | "buyer" | "payment" | "done">("cart");
   const [cartTrackingCode, setCartTrackingCode] = useState("");
   const [buyerForm, setBuyerForm] = useState<BuyerForm>({ name: "", phone: "", address: "" });
+  const [paymentMethod, setPaymentMethod] = useState<"" | "bkash" | "nagad" | "card">("");
+  const [imagePreview, setImagePreview] = useState("");
   const [form, setForm] = useState({
     name: "", nameBn: "", category: "ধান", price: "", unit: "কেজি",
     quantity: "", district: "ঢাকা", sellerName: "", sellerPhone: "",
@@ -204,6 +207,19 @@ export default function Marketplace() {
     navigator.clipboard.writeText(code).then(() => toast.success("ট্র্যাকিং কোড কপি হয়েছে"));
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { toast.error("ছবির আকার সর্বোচ্চ ২MB হতে হবে"); return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const base64 = ev.target?.result as string;
+      setImagePreview(base64);
+      setForm(p => ({ ...p, imageUrl: base64 }));
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <TooltipProvider>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="container mx-auto px-4 py-8">
@@ -242,7 +258,9 @@ export default function Marketplace() {
                       <div className="flex-1 overflow-y-auto space-y-3 py-4">
                         {Object.values(cart).map(({ product: p, qty }) => (
                           <div key={p.id} className="flex items-center gap-3 bg-muted/30 rounded-lg p-3">
-                            <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center shrink-0"><Leaf className="w-5 h-5 text-primary" /></div>
+                            <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                            {p.imageUrl ? <img src={p.imageUrl} alt={p.nameBn} className="w-full h-full object-cover" /> : <Leaf className="w-5 h-5 text-primary" />}
+                          </div>
                             <div className="flex-1 min-w-0">
                               <p className="font-medium text-sm truncate">{p.nameBn}</p>
                               <p className="text-xs text-muted-foreground">৳{p.price}/{p.unit}</p>
@@ -276,8 +294,68 @@ export default function Marketplace() {
                       <div className="space-y-1.5"><Label>ডেলিভারির ঠিকানা</Label><Textarea value={buyerForm.address} onChange={e => setBuyerForm(p => ({ ...p, address: e.target.value }))} placeholder="পূর্ণ ঠিকানা লিখুন..." rows={3} /></div>
                     </div>
                     <div className="flex justify-between font-bold text-lg pt-2 border-t"><span>মোট মূল্য</span><span className="text-primary">৳{cartTotal.toLocaleString()}</span></div>
-                    <Button className="w-full h-11 font-semibold gap-2" onClick={confirmCartOrder} disabled={submitting}><PackageCheck className="w-4 h-4" />{submitting ? "অর্ডার হচ্ছে..." : "অর্ডার নিশ্চিত করুন"}</Button>
+                    <Button className="w-full h-11 font-semibold gap-2" onClick={() => { if (!buyerForm.name || !buyerForm.phone || !buyerForm.address) { toast.error("নাম, মোবাইল ও ঠিকানা পূরণ করুন"); return; } setCartStep("payment"); setPaymentMethod(""); }}>
+                      <CreditCard className="w-4 h-4" /> পেমেন্ট পদ্ধতি বেছে নিন
+                    </Button>
                     <Button variant="ghost" className="w-full" onClick={() => setCartStep("cart")}>ফিরে যান</Button>
+                  </div>
+                )}
+                {cartStep === "payment" && (
+                  <div className="flex-1 flex flex-col py-4 space-y-4 overflow-y-auto">
+                    <div>
+                      <p className="font-semibold mb-1">পেমেন্ট পদ্ধতি বেছে নিন</p>
+                      <p className="text-xs text-muted-foreground">মোট পরিশোধযোগ্য: <span className="font-bold text-primary text-sm">৳{cartTotal.toLocaleString()}</span></p>
+                    </div>
+                    <div className="space-y-2.5">
+                      {[
+                        { id: "bkash", label: "bKash", color: "bg-pink-600", textColor: "text-white", desc: "বিকাশ মোবাইল ব্যাংকিং", icon: Smartphone },
+                        { id: "nagad", label: "Nagad", color: "bg-orange-500", textColor: "text-white", desc: "নগদ মোবাইল ব্যাংকিং", icon: Wallet },
+                        { id: "card", label: "কার্ড পেমেন্ট", color: "bg-primary", textColor: "text-white", desc: "ডেবিট/ক্রেডিট কার্ড", icon: CreditCard },
+                      ].map(pm => (
+                        <button key={pm.id} onClick={() => setPaymentMethod(pm.id as "bkash" | "nagad" | "card")}
+                          className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${
+                            paymentMethod === pm.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                          }`}>
+                          <div className={`w-10 h-10 rounded-xl ${pm.color} flex items-center justify-center shrink-0`}>
+                            <pm.icon className={`w-5 h-5 ${pm.textColor}`} />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-semibold text-sm">{pm.label}</p>
+                            <p className="text-xs text-muted-foreground">{pm.desc}</p>
+                          </div>
+                          <div className={`w-4 h-4 rounded-full border-2 shrink-0 ${paymentMethod === pm.id ? "border-primary bg-primary" : "border-muted-foreground/30"}`} />
+                        </button>
+                      ))}
+                    </div>
+                    {paymentMethod === "bkash" && (
+                      <div className="bg-pink-50 dark:bg-pink-950/20 rounded-xl p-3 text-sm border border-pink-200 dark:border-pink-800">
+                        <p className="font-semibold text-pink-700 dark:text-pink-400 mb-1">বিকাশ নম্বর</p>
+                        <p className="font-mono text-lg text-pink-700 dark:text-pink-300">01712-345678</p>
+                        <p className="text-xs text-pink-600 dark:text-pink-500 mt-1">Send Money করুন, তারপর নিশ্চিত করুন</p>
+                      </div>
+                    )}
+                    {paymentMethod === "nagad" && (
+                      <div className="bg-orange-50 dark:bg-orange-950/20 rounded-xl p-3 text-sm border border-orange-200 dark:border-orange-800">
+                        <p className="font-semibold text-orange-700 dark:text-orange-400 mb-1">নগদ নম্বর</p>
+                        <p className="font-mono text-lg text-orange-700 dark:text-orange-300">01812-345678</p>
+                        <p className="text-xs text-orange-600 dark:text-orange-500 mt-1">Send Money করুন, তারপর নিশ্চিত করুন</p>
+                      </div>
+                    )}
+                    {paymentMethod === "card" && (
+                      <div className="space-y-2 text-sm">
+                        <Input placeholder="কার্ড নম্বর (1234 5678 9012 3456)" inputMode="numeric" className="font-mono" />
+                        <div className="grid grid-cols-2 gap-2">
+                          <Input placeholder="MM/YY" />
+                          <Input placeholder="CVV" inputMode="numeric" maxLength={3} />
+                        </div>
+                      </div>
+                    )}
+                    <div className="mt-auto space-y-2 pt-2">
+                      <Button className="w-full h-11 font-semibold gap-2" onClick={confirmCartOrder} disabled={!paymentMethod || submitting}>
+                        <PackageCheck className="w-4 h-4" />{submitting ? "অর্ডার হচ্ছে..." : `৳${cartTotal.toLocaleString()} পরিশোধ করুন`}
+                      </Button>
+                      <Button variant="ghost" className="w-full" onClick={() => setCartStep("buyer")}>ফিরে যান</Button>
+                    </div>
                   </div>
                 )}
                 {cartStep === "done" && (
@@ -328,6 +406,24 @@ export default function Marketplace() {
                     <div className="space-y-1"><Label>মোবাইল</Label><Input value={form.sellerPhone} onChange={e => setForm(p => ({ ...p, sellerPhone: e.target.value }))} placeholder="01XXXXXXXXX" /></div>
                   </div>
                   <div className="space-y-1"><Label>বিবরণ (ঐচ্ছিক)</Label><Textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows={2} placeholder="পণ্য সম্পর্কে বিস্তারিত..." /></div>
+
+                  {/* Image upload */}
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-1.5"><ImagePlus className="w-3.5 h-3.5" />পণ্যের ছবি (ঐচ্ছিক)</Label>
+                    {imagePreview && (
+                      <div className="relative">
+                        <img src={imagePreview} alt="preview" className="w-full h-36 object-cover rounded-lg border" />
+                        <button onClick={() => { setImagePreview(""); setForm(p => ({ ...p, imageUrl: "" })); }}
+                          className="absolute top-1.5 right-1.5 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-black/80">✕</button>
+                      </div>
+                    )}
+                    <label className="flex items-center gap-2 cursor-pointer border-2 border-dashed border-border/60 rounded-lg px-3 py-3 text-sm text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors">
+                      <ImagePlus className="w-4 h-4 shrink-0" />
+                      <span>{imagePreview ? "অন্য ছবি বেছে নিন" : "ছবি আপলোড করুন (সর্বোচ্চ ২MB)"}</span>
+                      <input type="file" accept="image/*" className="sr-only" onChange={handleImageUpload} />
+                    </label>
+                  </div>
+
                   <div className="flex items-center gap-2">
                     <Switch id="organic" checked={form.isOrganic} onCheckedChange={v => setForm(p => ({ ...p, isOrganic: v }))} />
                     <Label htmlFor="organic">জৈব পণ্য (Organic)</Label>
@@ -409,7 +505,13 @@ export default function Marketplace() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: Math.min(i * 0.04, 0.3) }}
                   >
-                    <Card className="h-full hover:border-primary/40 hover:shadow-md transition-all group flex flex-col">
+                    <Card className="h-full hover:border-primary/40 hover:shadow-md transition-all group flex flex-col overflow-hidden">
+                      {/* Product image */}
+                      {product.imageUrl && (
+                        <div className="w-full h-40 bg-muted/30 overflow-hidden">
+                          <img src={product.imageUrl} alt={product.nameBn} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        </div>
+                      )}
                       <CardContent className="p-4 flex flex-col h-full">
 
                         {/* Top badges + delete */}

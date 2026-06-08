@@ -163,6 +163,22 @@ router.post("/animal-health/ingest", async (req, res) => {
   res.status(201).json({ ...row, updatedAt: row.updatedAt.toISOString() });
 });
 
+router.post("/animal-health/upsert", async (req, res) => {
+  const { animalId, species, name, age, weight, temperature, heartRate, status, location, symptoms, lastVaccine } = req.body;
+  let healthScore = 100;
+  if (temperature > 39.5 || temperature < 38.0) healthScore -= 20;
+  if (heartRate > 90 || heartRate < 40) healthScore -= 20;
+  const finalStatus = status || (healthScore < 50 ? "বিপদজনক" : healthScore < 70 ? "সতর্ক" : "সুস্থ");
+  const existing = await db.select().from(animalHealthTable).where(eq(animalHealthTable.animalId, animalId)).limit(1);
+  let row;
+  if (existing.length) {
+    [row] = await db.update(animalHealthTable).set({ species, name, age, weight, temperature, heartRate, status: finalStatus, healthScore, location, symptoms, lastVaccine }).where(eq(animalHealthTable.animalId, animalId)).returning();
+  } else {
+    [row] = await db.insert(animalHealthTable).values({ animalId, species, name, age, weight, temperature, heartRate, status: finalStatus, healthScore, location, symptoms, lastVaccine }).returning();
+  }
+  res.status(200).json({ ...row, updatedAt: row.updatedAt.toISOString() });
+});
+
 // ── 4. LIVE CHAT ──
 router.get("/live-chat/rooms", async (_req, res) => {
   res.json([
@@ -254,6 +270,18 @@ router.post("/drones/ingest", async (req, res) => {
   res.status(201).json({ ...row, updatedAt: row.updatedAt.toISOString() });
 });
 
+router.post("/drones/upsert", async (req, res) => {
+  const { droneId, model, status, battery, altitude, speed, coverage, mission, location } = req.body;
+  const [row] = await db.insert(droneTable).values({
+    droneId, battery: battery || 80, altitude: altitude || 0,
+    speed: speed || 0, coverageArea: coverage || 0,
+    lastMission: mission || "—", nextMission: "অপেক্ষায়",
+    status: status || "অপেক্ষায়",
+    location: location || "ময়মনসিংহ",
+  }).returning();
+  res.status(200).json({ ...row, updatedAt: row.updatedAt.toISOString() });
+});
+
 // ── 7. MARKET INTELLIGENCE ──
 router.get("/market-prices", async (req, res) => {
   const { crop, district } = req.query as { crop?: string; district?: string };
@@ -282,6 +310,29 @@ router.post("/market-prices/ingest", async (req, res) => {
     cropName, variety, wholesalePrice, retailPrice, marketName: marketName || "নেত্রকোনা বাজার", district: district || "ঢাকা", trend, volume, unit,
   }).returning();
   res.status(201).json({ ...row, updatedAt: row.updatedAt.toISOString() });
+});
+
+router.post("/irrigation/upsert", async (req, res) => {
+  const { zoneId, zoneName, cropType, soilMoisture, waterFlow, status, scheduledDuration, nextSchedule, location } = req.body;
+  const [row] = await db.insert(irrigationTable).values({
+    fieldId: zoneId, cropType, scheduleType: "ম্যানুয়াল",
+    startTime: nextSchedule || "06:00", duration: scheduledDuration || 30,
+    waterAmount: waterFlow, soilMoistureThreshold: soilMoisture,
+    nextRun: nextSchedule || "06:00", isActive: status !== "বন্ধ",
+    status: status || "সক্রিয়", location: location || "ময়মনসিংহ",
+  }).returning();
+  res.status(200).json({ ...row, createdAt: row.createdAt.toISOString() });
+});
+
+router.post("/market-prices/upsert", async (req, res) => {
+  const { crop, unit, wholesalePrice, retailPrice, change, market } = req.body;
+  const [row] = await db.insert(marketPricesTable).values({
+    cropName: crop, unit, wholesalePrice, retailPrice,
+    marketName: market || "ময়মনসিংহ হাট", district: "ময়মনসিংহ",
+    trend: (change || "").startsWith("+") ? "বেশি" : (change || "").startsWith("-") ? "কম" : "স্থির",
+    volume: 0,
+  }).returning();
+  res.status(200).json({ ...row, updatedAt: row.updatedAt.toISOString() });
 });
 
 // ── 8. SMART IRRIGATION ──
