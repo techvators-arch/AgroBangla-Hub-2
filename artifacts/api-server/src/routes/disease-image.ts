@@ -1,84 +1,56 @@
 import { Router } from "express";
 import multer from "multer";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
 const CROP_NAMES_BN: Record<string, string> = {
-  rice: "ধান",
-  wheat: "গম",
-  potato: "আলু",
-  tomato: "টমেটো",
-  jute: "পাট",
-  mustard: "সরিষা",
-  sugarcane: "আখ",
-  maize: "ভুট্টা",
-  brinjal: "বেগুন",
-  cucumber: "শসা",
-  onion: "পেঁয়াজ",
-  garlic: "রসুন",
-  mango: "আম",
-  banana: "কলা",
-  papaya: "পেঁপে",
-  lentil: "মসুর",
-  chickpea: "ছোলা",
-  cotton: "তুলা",
-  groundnut: "চিনাবাদাম",
-  soybean: "সয়াবিন",
+  rice: "ধান", wheat: "গম", potato: "আলু", tomato: "টমেটো",
+  jute: "পাট", mustard: "সরিষা", sugarcane: "আখ", maize: "ভুট্টা",
+  brinjal: "বেগুন", cucumber: "শসা", onion: "পেঁয়াজ", garlic: "রসুন",
+  mango: "আম", banana: "কলা", papaya: "পেঁপে", lentil: "মসুর",
+  chickpea: "ছোলা", cotton: "তুলা", groundnut: "চিনাবাদাম", soybean: "সয়াবিন",
 };
 
 const GEMINI_PROMPT = `You are an expert agricultural plant disease diagnostician with deep knowledge of crop diseases in Bangladesh and South Asia.
 
-Analyze this plant/crop image carefully and provide a detailed disease diagnosis in the following JSON format ONLY (no extra text):
+Analyze this plant/crop image carefully and provide a detailed disease diagnosis. Respond ONLY with a valid JSON object — no markdown, no extra text, no code fences.
 
 {
-  "isPlant": true or false,
-  "diseaseName": "Scientific and common name of the disease in English",
+  "isPlant": true,
+  "diseaseName": "Scientific and common name in English",
   "diseaseNameBn": "রোগের নাম বাংলায়",
-  "severity": "low" or "medium" or "high",
-  "confidence": 0.0 to 1.0,
-  "symptoms": "Detailed symptoms description in English",
+  "severity": "low",
+  "confidence": 0.87,
+  "symptoms": "Detailed symptoms in English",
   "symptomsBn": "বিস্তারিত লক্ষণ বাংলায়",
-  "treatment": "Detailed treatment and prevention in English including specific fungicide/pesticide names and doses",
-  "treatmentBn": "বিস্তারিত প্রতিকার ও চিকিৎসা বাংলায় — নির্দিষ্ট ওষুধের নাম ও মাত্রা সহ",
-  "additionalInfo": "Any additional advice for the farmer in English",
-  "additionalInfoBn": "কৃষকের জন্য অতিরিক্ত পরামর্শ বাংলায়",
-  "colorAnalysis": {
-    "green": percentage as integer 0-100,
-    "brown": percentage as integer 0-100,
-    "yellow": percentage as integer 0-100,
-    "white": percentage as integer 0-100,
-    "dark": percentage as integer 0-100
-  },
-  "dominantColor": "green" or "brown" or "yellow" or "white" or "dark"
+  "treatment": "Treatment in English with specific fungicide/pesticide names and doses",
+  "treatmentBn": "বিস্তারিত প্রতিকার বাংলায় — নির্দিষ্ট ওষুধের নাম ও মাত্রা সহ",
+  "additionalInfo": "Extra advice in English",
+  "additionalInfoBn": "অতিরিক্ত পরামর্শ বাংলায়",
+  "colorAnalysis": { "green": 45, "brown": 25, "yellow": 15, "white": 10, "dark": 5 },
+  "dominantColor": "green"
 }
 
 Rules:
-- If the image is NOT a plant or crop, set isPlant=false and use diseaseName="Not a plant image", diseaseNameBn="উদ্ভিদের ছবি নয়"
-- If the plant appears healthy (no disease), set diseaseName="Healthy Plant", diseaseNameBn="সুস্থ গাছ", severity="low", confidence=0.95
-- For the colorAnalysis, estimate the percentage of each color visible (all should sum close to 100)
-- Be specific about fungicide/bactericide names, doses, and application frequency
-- Respond ONLY with the JSON object, no markdown, no extra text`;
+- severity must be exactly "low", "medium", or "high"
+- confidence is a decimal 0.0 to 1.0
+- colorAnalysis values are integers 0-100 (they should roughly sum to 100)
+- dominantColor must be one of: green, brown, yellow, white, dark
+- If NOT a plant: isPlant=false, diseaseName="Not a plant image", diseaseNameBn="উদ্ভিদের ছবি নয়", severity="low"
+- If plant is HEALTHY: diseaseName="Healthy Plant", diseaseNameBn="সুস্থ গাছ", severity="low", confidence=0.95
+- Be specific: include exact fungicide names, dose (g/L or ml/L), and frequency`;
 
 interface DiseaseResult {
-  id: number;
-  cropType: string;
-  diseaseName: string;
-  diseaseNameBn: string;
-  severity: string;
-  treatment: string;
-  treatmentBn: string;
-  symptoms: string;
-  symptomsBn: string;
-  additionalInfo: string;
-  additionalInfoBn: string;
-  confidence: number;
+  id: number; cropType: string; diseaseName: string; diseaseNameBn: string;
+  severity: string; treatment: string; treatmentBn: string;
+  symptoms: string; symptomsBn: string; confidence: number;
   dominantColor: string;
   colorAnalysis: { green: number; brown: number; yellow: number; white: number; dark: number };
-  detectedAt: string;
+  detectedAt: string; additionalInfo: string; additionalInfoBn: string;
   analyzedBy: "gemini";
 }
 
@@ -93,48 +65,57 @@ router.post("/disease/detect-image", upload.single("image"), async (req, res) =>
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
     const cropNameBn = CROP_NAMES_BN[cropType] || cropType;
-    const prompt = `${GEMINI_PROMPT}\n\nThe farmer says this is a ${cropType} (${cropNameBn}) crop. Use this as context but also verify from the image itself.`;
+    const prompt = `${GEMINI_PROMPT}\n\nThe farmer reports this is a ${cropType} (${cropNameBn}) crop. Use this context but also verify from the image itself.`;
 
-    const imagePart = {
-      inlineData: {
-        data: req.file.buffer.toString("base64"),
-        mimeType: req.file.mimetype as string,
-      },
-    };
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { text: prompt },
+            {
+              inlineData: {
+                mimeType: req.file.mimetype,
+                data: req.file.buffer.toString("base64"),
+              },
+            },
+          ],
+        },
+      ],
+    });
 
-    const geminiResult = await model.generateContent([prompt, imagePart]);
-    const responseText = geminiResult.response.text().trim();
+    const responseText = response.text?.trim() ?? "";
 
     let parsed: any;
     try {
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
       parsed = JSON.parse(jsonMatch ? jsonMatch[0] : responseText);
     } catch {
-      throw new Error("Gemini response parse failed: " + responseText.slice(0, 200));
+      throw new Error("JSON parse failed: " + responseText.slice(0, 300));
     }
 
+    const ca = parsed.colorAnalysis ?? {};
     const colorAnalysis = {
-      green: Math.min(100, Math.max(0, Math.round(parsed.colorAnalysis?.green ?? 40))),
-      brown: Math.min(100, Math.max(0, Math.round(parsed.colorAnalysis?.brown ?? 20))),
-      yellow: Math.min(100, Math.max(0, Math.round(parsed.colorAnalysis?.yellow ?? 15))),
-      white: Math.min(100, Math.max(0, Math.round(parsed.colorAnalysis?.white ?? 15))),
-      dark: Math.min(100, Math.max(0, Math.round(parsed.colorAnalysis?.dark ?? 10))),
+      green:  Math.min(100, Math.max(0, Math.round(Number(ca.green)  || 40))),
+      brown:  Math.min(100, Math.max(0, Math.round(Number(ca.brown)  || 20))),
+      yellow: Math.min(100, Math.max(0, Math.round(Number(ca.yellow) || 15))),
+      white:  Math.min(100, Math.max(0, Math.round(Number(ca.white)  || 15))),
+      dark:   Math.min(100, Math.max(0, Math.round(Number(ca.dark)   || 10))),
     };
 
     const result: DiseaseResult = {
       id: nextImgId++,
       cropType,
-      diseaseName: parsed.diseaseName || "Unknown Disease",
-      diseaseNameBn: parsed.diseaseNameBn || "অজানা রোগ",
+      diseaseName:    parsed.diseaseName    || "Unknown Disease",
+      diseaseNameBn:  parsed.diseaseNameBn  || "অজানা রোগ",
       severity: ["low", "medium", "high"].includes(parsed.severity) ? parsed.severity : "medium",
-      treatment: parsed.treatment || "",
-      treatmentBn: parsed.treatmentBn || "",
-      symptoms: parsed.symptoms || "",
-      symptomsBn: parsed.symptomsBn || "",
-      additionalInfo: parsed.additionalInfo || "",
+      treatment:      parsed.treatment      || "",
+      treatmentBn:    parsed.treatmentBn    || "",
+      symptoms:       parsed.symptoms       || "",
+      symptomsBn:     parsed.symptomsBn     || "",
+      additionalInfo:   parsed.additionalInfo   || "",
       additionalInfoBn: parsed.additionalInfoBn || "",
       confidence: Math.min(1, Math.max(0, Number(parsed.confidence) || 0.85)),
       dominantColor: parsed.dominantColor || "green",
@@ -147,9 +128,13 @@ router.post("/disease/detect-image", upload.single("image"), async (req, res) =>
     if (imageHistory.length > 20) imageHistory.pop();
 
     res.json(result);
-  } catch (err) {
+  } catch (err: any) {
     req.log.error(err, "Gemini image analysis failed");
-    res.status(500).json({ error: "ছবি বিশ্লেষণ ব্যর্থ হয়েছে। API key বা নেটওয়ার্ক সমস্যা হতে পারে।" });
+    const msg = err?.message || "";
+    if (msg.includes("429") || msg.includes("quota")) {
+      return res.status(429).json({ error: "Gemini API quota শেষ। কিছুক্ষণ পর আবার চেষ্টা করুন।" });
+    }
+    res.status(500).json({ error: "ছবি বিশ্লেষণ ব্যর্থ হয়েছে।" });
   }
 });
 

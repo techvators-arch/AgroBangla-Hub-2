@@ -207,7 +207,7 @@ export default function DiseaseDetector() {
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">ফসলের রোগ নির্ণয়</h1>
-        <p className="text-muted-foreground">ছবি তুলে আপলোড করুন — AI পিক্সেল বিশ্লেষণে রোগ সনাক্ত করবে</p>
+        <p className="text-muted-foreground">ছবি তুলে আপলোড করুন — Gemini AI দিয়ে যেকোনো ফসলের যেকোনো রোগ সনাক্ত করবে</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
