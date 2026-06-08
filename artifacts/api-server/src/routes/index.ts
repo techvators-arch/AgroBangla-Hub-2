@@ -12,6 +12,7 @@ import krishokCardRouter from "./krishok_card";
 import ordersRouter from "./orders";
 import aiAssistantRouter from "./ai-assistant";
 import iotRouter from "./iot";
+import coldStorageRouter from "./cold-storage";
 
 const router: IRouter = Router();
 
@@ -28,5 +29,6 @@ router.use(krishokCardRouter);
 router.use(ordersRouter);
 router.use(aiAssistantRouter);
 router.use(iotRouter);
+router.use(coldStorageRouter);
 
 export default router;
