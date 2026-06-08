@@ -18,7 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   ShoppingBag, Plus, Phone, MapPin, Leaf, Trash2, Search, Package,
   ShoppingCart, Minus, X, CheckCircle,
-  Zap, CreditCard, PackageCheck, Copy, TrendingUp, TrendingDown, Building2, Info,
+  Zap, CreditCard, PackageCheck, Copy, TrendingUp, TrendingDown, Building2, Info, PackageSearch,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -215,6 +215,11 @@ export default function Marketplace() {
             <p className="text-muted-foreground text-sm">সরাসরি কৃষকের কাছ থেকে কিনুন, ন্যায্য মূল্যে বিক্রি করুন</p>
           </div>
           <div className="flex items-center gap-2">
+            {/* আমার অর্ডার */}
+            <Button variant="outline" className="gap-2" onClick={() => navigate("/orders")}>
+              <PackageSearch className="w-4 h-4" />আমার অর্ডার
+            </Button>
+
             {/* Cart */}
             <Sheet open={cartOpen} onOpenChange={v => { setCartOpen(v); if (!v) { setCartStep("cart"); setBuyerForm({ name: "", phone: "", address: "" }); } }}>
               <SheetTrigger asChild>
